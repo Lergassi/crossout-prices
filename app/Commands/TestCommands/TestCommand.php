@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Test;
+namespace App\Commands\TestCommands;
 
-use Dotenv\Dotenv;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class TestDotenvCommand extends Command
+class TestCommand extends Command
 {
-    protected static $defaultName = 'test.dotenv';
+    protected static $defaultName = 'test';
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        var_dump($_ENV);
+        var_dump('this is TestCommand');
+
+        dump('this is dump');
+        dd('this is dd');
 
         return 0;
     }

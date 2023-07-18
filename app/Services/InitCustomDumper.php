@@ -1,9 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Services;
 
 use Symfony\Component\VarDumper\Cloner\VarCloner;
-use Symfony\Component\VarDumper\Dumper\CliDumper;
 use Symfony\Component\VarDumper\Dumper\ContextProvider\CliContextProvider;
 use Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider;
 use Symfony\Component\VarDumper\Dumper\ServerDumper;

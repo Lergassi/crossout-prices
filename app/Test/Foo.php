@@ -4,13 +4,10 @@ namespace App\Test;
 
 class Foo
 {
-    public string $msg;
+    public string $a;
 
-    /**
-     * @param string $_msg
-     */
-    public function __construct(string $_msg = '')
+    public function __construct(string $a = '')
     {
-        $this->msg = $_msg;
+        $this->a = $a;
     }
 }

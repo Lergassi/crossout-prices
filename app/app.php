@@ -7,21 +7,57 @@ ini_set('display_startup_errors', 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Services\Database;
+use DI\ContainerBuilder;
 use Dotenv\Dotenv;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 
+//--------------------------------
 // init app
+//--------------------------------
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
-new \App\InitCustomDumper();
+new \App\Services\InitCustomDumper();
+
+//--------------------------------
+//region init container
+//--------------------------------
+$containerBuilder = new ContainerBuilder();
+
+$containerBuilder->addDefinitions([
+    Database::class => function (ContainerInterface $container) {
+        return new Database(
+            $_ENV['APP_DB_HOST'],
+            $_ENV['APP_DB_NAME'],
+            $_ENV['APP_DB_USER'],
+            $_ENV['APP_DB_PASSWORD'],
+        );
+    },
+]);
+
+$container = $containerBuilder->build();
+//endregion init container
+
 $application = new Application();
 
+//--------------------------------
 // commands
+//--------------------------------
+$application->add($container->get(\App\Commands\ListCommand::class));
 
-// tests commands
-$application->add(new \App\Test\TestCommand());
-$application->add(new \App\Test\TestVarDumperCommand());
-$application->add(new \App\Test\TestDotenvCommand());
+//--------------------------------
+// sandbox commands
+//--------------------------------
+$application->add(new \App\Commands\SandboxCommands\MainSandboxCommand($container));
+
+//--------------------------------
+// test commands
+//--------------------------------
+$application->add(new \App\Commands\TestCommands\TestCommand());
+$application->add(new \App\Commands\TestCommands\TestVarDumperCommand());
+$application->add(new \App\Commands\TestCommands\TestDotenvCommand());
+$application->add($container->get(\App\Commands\TestCommands\TestInjectContainerCommand::class));
 
 $application->run();

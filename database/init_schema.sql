@@ -32,4 +32,16 @@ create table if not exists require_items
     unique (recipe_id, item_id)
 );
 
-# prices
+# Цена продажи: максимальная с ожиданием, минимальная с мгновенной продажей.
+# Цена покупки: максимальная с мгновенной покупкой, минимальная с ожиданием.
+# Противоположные цены не будут учитываться.
+create table prices
+(
+    id int unsigned auto_increment,
+    max_sell_price decimal(19, 2) unsigned not null,
+    min_buy_price decimal(19, 2) unsigned not null,
+    item_id int unsigned not null,
+    primary key (id),
+    foreign key (item_id) references items (id),
+    unique (item_id)
+);

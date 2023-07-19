@@ -7,7 +7,6 @@ ini_set('display_startup_errors', 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Services\Database;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
 use Psr\Container\ContainerInterface;
@@ -19,7 +18,7 @@ use Symfony\Component\Console\Application;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
-new \App\Services\InitCustomDumper();
+new \App\Services\Dump\InitCustomDumper();
 
 //--------------------------------
 //region init container
@@ -27,12 +26,16 @@ new \App\Services\InitCustomDumper();
 $containerBuilder = new ContainerBuilder();
 
 $containerBuilder->addDefinitions([
-    Database::class => function (ContainerInterface $container) {
-        return new Database(
-            $_ENV['APP_DB_HOST'],
-            $_ENV['APP_DB_NAME'],
+    PDO::class => function (ContainerInterface $container) {
+        return new \PDO(
+            sprintf('mysql:host=%s;dbname=%s', $_ENV['APP_DB_HOST'], $_ENV['APP_DB_NAME']),
             $_ENV['APP_DB_USER'],
             $_ENV['APP_DB_PASSWORD'],
+            [
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                \PDO::ATTR_EMULATE_PREPARES => false,
+                \PDO::ATTR_STRINGIFY_FETCHES => false,
+            ]
         );
     },
 ]);
@@ -40,17 +43,22 @@ $containerBuilder->addDefinitions([
 $container = $containerBuilder->build();
 //endregion init container
 
-$application = new Application();
+$application = new Application(
+        $_ENV['APP_NAME'] ?? 'crossout',
+        $_ENV['APP_VERSION'] ?? '',
+);
 
 //--------------------------------
 // commands
 //--------------------------------
 $application->add($container->get(\App\Commands\ListCommand::class));
 
+//todo: Сделать чтобы sandbox/test были не доступны на prod.
 //--------------------------------
 // sandbox commands
 //--------------------------------
 $application->add(new \App\Commands\SandboxCommands\MainSandboxCommand($container));
+$application->add($container->get(\App\Commands\SandboxCommands\PriceSandboxCommand::class));
 
 //--------------------------------
 // test commands
@@ -59,5 +67,9 @@ $application->add(new \App\Commands\TestCommands\TestCommand());
 $application->add(new \App\Commands\TestCommands\TestVarDumperCommand());
 $application->add(new \App\Commands\TestCommands\TestDotenvCommand());
 $application->add($container->get(\App\Commands\TestCommands\TestInjectContainerCommand::class));
+$application->add($container->get(\App\Commands\TestCommands\TestPDOInjectCommand::class));
 
+//--------------------------------
+// run app
+//--------------------------------
 $application->run();

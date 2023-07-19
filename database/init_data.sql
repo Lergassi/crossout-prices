@@ -1,5 +1,6 @@
 # start transaction;
 
+# todo: Нужно запускать каждый раз. Не удобно при доработки скрипта.
 set @scrap_meta_id = 53;
 set @wires_id = 85;
 set @copper_id = 43;
@@ -37,7 +38,7 @@ insert into recipes (craft_cost, result_count, item_id) values (15, 1, 497);
 
 insert into recipes (craft_cost, result_count, item_id) values (6, 2, 482);
 insert into recipes (craft_cost, result_count, item_id) values (6, 2, 483);
-insert into recipes (craft_cost, result_count, item_id) values (6, 2, 112);
+insert into recipes (craft_cost, result_count, item_id) values (6, 1, 112);
 
 insert into recipes (craft_cost, result_count, item_id) values (3, 2, 379);
 insert into recipes (craft_cost, result_count, item_id) values (3, 2, 389);
@@ -142,6 +143,34 @@ insert into require_items (recipe_id, item_id, item_count) VALUES (@item_id, @co
 set @item_id = (select id from recipes where item_id = 172);
 insert into require_items (recipe_id, item_id, item_count) VALUES (@item_id, @scrap_meta_id, 20);
 insert into require_items (recipe_id, item_id, item_count) VALUES (@item_id, @copper_id, 4);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (4.13, 4.13, @scrap_meta_id);
+insert into prices (max_sell_price, min_buy_price, item_id) values (12.20, 11.83, @wires_id);
+insert into prices (max_sell_price, min_buy_price, item_id) values (3.70, 3.39, @copper_id);
+insert into prices (max_sell_price, min_buy_price, item_id) values (33.97, 32.67, @plastic_id);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (459.90, 445.08, 497);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (62.78, 57.23, 482);
+insert into prices (max_sell_price, min_buy_price, item_id) values (63.88, 61.41, 483);
+insert into prices (max_sell_price, min_buy_price, item_id) values (129.62, 110.54, 112);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (20.00, 16.00, 379);
+insert into prices (max_sell_price, min_buy_price, item_id) values (19.76, 16.74, 389);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (0.94, 0.55, 163);
+insert into prices (max_sell_price, min_buy_price, item_id) values (0.90, 0.42, 126);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (19.00, 16.73, 383);
+insert into prices (max_sell_price, min_buy_price, item_id) values (20.24, 16.91, 395);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (0.90, 0.67, 186);
+insert into prices (max_sell_price, min_buy_price, item_id) values (1.00, 0.50, 176);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (43.93, 34.51, 108);
+
+insert into prices (max_sell_price, min_buy_price, item_id) values (1.20, 0.74, 109);
+insert into prices (max_sell_price, min_buy_price, item_id) values (1.22, 0.74, 172);
 
 # commit;
 

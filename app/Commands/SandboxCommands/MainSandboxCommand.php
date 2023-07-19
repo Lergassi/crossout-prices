@@ -3,7 +3,8 @@
 namespace App\Commands\SandboxCommands;
 
 use App\Commands\TestCommands\TestInjectContainerCommand;
-use App\Services\Database;
+
+use App\Services\DataManager;
 use App\Test\Foo;
 use DI\Container;
 use DI\ContainerBuilder;
@@ -19,10 +20,12 @@ class MainSandboxCommand extends Command
 {
     protected static $defaultName = 'sandbox';
     private ContainerInterface $_container;
+    private \PDO $_pdo;
 
     public function __construct(ContainerInterface $container)
     {
         $this->_container = $container;
+        $this->_pdo = $container->get(\PDO::class);
         parent::__construct(static::$defaultName);
     }
 
@@ -31,7 +34,10 @@ class MainSandboxCommand extends Command
 //        $this->_devDatabase();
 //        $this->_devContainer();
 //        $this->_devContainerInject();
-        $this->_devContainerInjectToCommand();
+//        $this->_devContainerInjectToCommand();
+//        $this->_devContainerInjectToCommand();
+//        $this->_devDataManager();
+        $this->_devMysqlFetchFloat();
 
         return 0;
     }
@@ -46,12 +52,12 @@ class MainSandboxCommand extends Command
 //                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
 //            ]
 //        );
-        $db = new Database(
-            $_ENV['APP_DB_HOST'],
-            $_ENV['APP_DB_NAME'],
-            $_ENV['APP_DB_USER'],
-            $_ENV['APP_DB_PASSWORD'],
-        );
+//        $db = new Database(
+//            $_ENV['APP_DB_HOST'],
+//            $_ENV['APP_DB_NAME'],
+//            $_ENV['APP_DB_USER'],
+//            $_ENV['APP_DB_PASSWORD'],
+//        );
 //        dd($db);
 
         $query =
@@ -102,17 +108,17 @@ class MainSandboxCommand extends Command
     {
         $containerBuilder = new ContainerBuilder();
 
-        $containerBuilder->addDefinitions([
-            Database::class => function (ContainerInterface $container) {
-                return new Database(
-                    $_ENV['APP_DB_HOST'],
-                    $_ENV['APP_DB_NAME'],
-                    $_ENV['APP_DB_USER'],
-                    $_ENV['APP_DB_PASSWORD'],
-                );
-            },
-            'host' => 'localhost',
-        ]);
+//        $containerBuilder->addDefinitions([
+//            Database::class => function (ContainerInterface $container) {
+//                return new Database(
+//                    $_ENV['APP_DB_HOST'],
+//                    $_ENV['APP_DB_NAME'],
+//                    $_ENV['APP_DB_USER'],
+//                    $_ENV['APP_DB_PASSWORD'],
+//                );
+//            },
+//            'host' => 'localhost',
+//        ]);
 
 //        $container = new Container();
         $container = $containerBuilder->build();
@@ -125,12 +131,12 @@ class MainSandboxCommand extends Command
 //        dump($container->get('foo'));
 //        dump($container->get('host'));
 //        dump($container->get(Foo::class));
-        dump($container->get(Database::class));
+//        dump($container->get(Database::class));
     }
 
     private function _devContainerInject()
     {
-        dump($this->_container->get(Database::class));
+//        dump($this->_container->get(Database::class));
     }
 
     private function _devContainerInjectToCommand()
@@ -140,5 +146,36 @@ class MainSandboxCommand extends Command
         $command = $this->_container->get(TestInjectContainerCommand::class);
 //        dump($command);
         $command->execute(new StringInput(''), new NullOutput());
+    }
+
+    private function _devDataManager()
+    {
+        /** @var DataManager $dataManager */
+        $dataManager = $this->_container->get(DataManager::class);
+
+        $ID = 497;
+//        $ID = 112;
+//        $ID = 108;
+//        $ID = 482;
+//        $ID = 383;
+//        $ID = -1;
+//        $ID = 0;
+//        $ID = 42;
+//        $ID = 1.42;
+//        $ID = '';
+//        $ID = null;
+
+        $requireItems = $dataManager->findHierarchyRequireItems($ID);
+        dump($requireItems);
+    }
+
+    private function _devMysqlFetchFloat()
+    {
+        $query = 'select * from test_table';
+        $stmt = $this->_pdo->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        dump($result);
     }
 }

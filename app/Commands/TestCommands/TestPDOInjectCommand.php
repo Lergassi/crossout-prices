@@ -2,26 +2,27 @@
 
 namespace App\Commands\TestCommands;
 
-
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class TestInjectContainerCommand extends Command
+class TestPDOInjectCommand extends Command
 {
-    protected static $defaultName = 'test.inject_container';
+    protected static $defaultName = 'test.pdo_inject';
+    private \PDO $_pdo;
 
-    private \App\Test\Foo $foo;
-
-    public function __construct(\App\Test\Foo $foo)
+    public function __construct(\PDO $pdo)
     {
-        $this->foo = $foo;
+        $this->_pdo = $pdo;
         parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        dump($this->foo);
+//        dump($this->_pdo);
+        $stmt = $this->_pdo->prepare('select * from test_table');
+        $stmt->execute();
+        dump(count($stmt->fetchAll()) === 3);
 
         return 0;
     }

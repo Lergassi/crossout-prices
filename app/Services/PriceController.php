@@ -2,73 +2,106 @@
 
 namespace App\Services;
 
+use App\Types\CategoryID;
+
 class PriceController
 {
-    private Database $_database;
+    private \PDO $_pdo;
+    private DataManager $_dataManager;
 
-    public function __construct(Database $database)
+    public function __construct(\PDO $pdo, DataManager $dataManager)
     {
-        $this->_database = $database;
+        $this->_pdo = $pdo;
+        $this->_dataManager = $dataManager;
     }
 
-    public function list(): void
+    public function optimalRoute(int $ID): void
     {
-        $query =
-            /** @lang MySQL */
-            'WITH RECURSIVE main_query_02 AS (
-            select
-                r1.id as r_id,
-                r1.item_id as r_item_id,
-                ri1.id as ri_id,
-                ri1.item_id as ri_item_id,
-                ri1.item_count
-            from require_items ri1
-                left join recipes r1 on r1.id = ri1.recipe_id
-            where r1.item_id = :itemID
-            UNION ALL
-                select
-                    r2.id,
-                    r2.item_id,
-                    ri2.id,
-                    ri2.item_id,
-                    ri2.item_count
-                from recipes r2
-                    left join require_items ri2 on r2.id = ri2.recipe_id
-                    left join items i1 on i1.id = r2.item_id,
-                    main_query_02 mq02
-                where
-                    r2.item_id = mq02.ri_item_id
-            )
-            
-            SELECT
-                ri_item_id,
-                sum(item_count) as total,
-                i.name as item_name
-            FROM main_query_02
-                left join items i on i.id = ri_item_id
-            where
-                i.category = \'resource\'
-            group by ri_item_id
-            order by total desc'
-        ;
+        $originalItemID = $ID;
 
-        $stmt = $this->_database->getPdo()->prepare($query);
-        $stmt->bindValue(':itemID', 497);
-        $stmt->execute();
+        $result = $this->_dataManager->findHierarchyRequireItems($ID);
+        if (!count($result)) throw new \Exception(sprintf('Данные для %s не найдены.', $ID));
 
-        $result = $stmt->fetchAll();
-//        dd($result);
+        $stacks = [
+            43 => 100,  //copper
+            53 => 100,
+            85 => 100,
+            785 => 100,
+        ];
 
-        $lineSeparator = str_repeat('-', 32) . PHP_EOL;
-        echo $lineSeparator;
-        echo '| Icarus VII' . PHP_EOL;
-        echo $lineSeparator;
-        foreach ($result as $item) {
-            echo vsprintf('| %s | %s | %s |' . PHP_EOL, [
-                $item['ri_item_id'],
-                $item['item_name'],
-                $item['total'],
+        $resourcePrices = [];
+        $resultCount = count($result);
+        $stack = [];
+        $reversStack = [$ID];
+        for ($i = 0; $i < $resultCount; ++$i) {
+            if ($result[$i]['r_item_id'] === $ID) {
+                $recipe = $this->_dataManager->findOneRecipe($result[$i]['r_item_id']);
+                $price = $this->_dataManager->findOnePrice($result[$i]['ri_item_id']);
+                if (!isset($resourcePrices[$result[$i]['r_item_id']])) $resourcePrices[$result[$i]['r_item_id']] = $recipe['craft_cost'];
+
+                if ($result[$i]['i_category'] === CategoryID::Resource->value) {
+                    $resourcePrices[$result[$i]['r_item_id']] += round($result[$i]['ri_item_count'] / $stacks[$result[$i]['ri_item_id']] * $price['min_buy_price'], 2);
+                } else {
+                    $stack[] = $result[$i]['ri_item_id'];
+                    $reversStack[] = $result[$i]['ri_item_id'];
+                }
+            }//end if
+
+            if ($i + 1 >= $resultCount) {
+                if (count($stack)) {
+                    $ID = array_shift($stack);
+                    $i = -1;
+                }
+            }
+        }//end for
+//        dump($resourcePrices);
+
+        $total = [];
+        $reversStackCount = count($reversStack);
+        for ($i = $reversStackCount - 1; $i >= 0; --$i) {
+            //todo: Оптимизировать и убрать повторные запросы.
+            $price = $this->_dataManager->findOnePrice($reversStack[$i]);
+            $recipe = $this->_dataManager->findOneRecipe($result[$i]['r_item_id']);
+            $requireItems = [];
+            for ($j = 0; $j < $resultCount; ++$j) {
+                if ($result[$j]['r_item_id'] === $reversStack[$i] && $result[$j]['i_category'] !== CategoryID::Resource->value) {
+                    $requireItems[] = $result[$j];
+                }
+            }
+
+            $total[$reversStack[$i]] = [
+                'craft' => $resourcePrices[$reversStack[$i]],
+                'buy' => floatval($price['min_buy_price']), //todo: Убрать/скрыть в отдельный класс работу с decimal/float + round.
+            ];
+
+            if (count($requireItems)) {
+                foreach ($requireItems as $requireItem) {
+                    $buySum = round($total[$requireItem['ri_item_id']]['buy'] * $requireItem['ri_item_count'], 2);
+                    if ($total[$requireItem['ri_item_id']]['craft'] >= $buySum) {
+//                        $total[$reversStack[$i]]['craft'] += $buySum;
+                        $total[$reversStack[$i]]['craft'] = round($total[$reversStack[$i]]['craft'] + $buySum, 2);
+                    } else {
+                        $total[$reversStack[$i]]['craft'] = round($total[$reversStack[$i]]['craft'] + $total[$requireItem['ri_item_id']]['craft'], 2);
+                    }
+                }
+            }
+        }
+//        dump($total);
+
+        //todo: Сделать таблицу или найти библиотеку. Нужно выровнить табы.
+        $separator = str_repeat('-', 64) . PHP_EOL;
+        echo $separator;
+        echo sprintf("| Item: %s", $originalItemID) . PHP_EOL;
+        echo $separator;
+        echo sprintf("| ID\t| craft\t| buy" . PHP_EOL);
+        echo $separator;
+        foreach ($total as $key => $item) {
+            echo vsprintf("| %s\t| %s\t| %s" . PHP_EOL, [
+                $key,
+                $item['craft'],
+                $item['buy'],
             ]);
         }
+        echo $separator;
     }
 }

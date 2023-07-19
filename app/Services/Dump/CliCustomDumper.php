@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Dump;
 
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Dumper\CliDumper;

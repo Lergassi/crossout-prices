@@ -2,17 +2,16 @@
 
 namespace App\Commands;
 
-use App\Services\Database;
 use App\Services\PriceController;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCommand extends Command
 {
-    protected static $defaultName = 'list';
+    protected static $defaultName = 'optimal_route';
 
-//    public function __construct(Database $database)
     private PriceController $_priceController;
 
     public function __construct(PriceController $priceController)
@@ -21,9 +20,16 @@ class ListCommand extends Command
         parent::__construct(static::$defaultName);
     }
 
+    protected function configure()
+    {
+        $this->addArgument('ID', InputArgument::REQUIRED);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_priceController->list();
+        $ID = intval($input->getArgument('ID'));
+
+        $this->_priceController->optimalRoute($ID);
 
         return 0;
     }

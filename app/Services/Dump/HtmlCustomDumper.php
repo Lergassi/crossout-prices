@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Dump;
 
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\VarDumper;
 
-class CustomHtmlDumper extends HtmlDumper
+class HtmlCustomDumper extends HtmlDumper
 {
     public function dump(Data $data, $output = null, array $extraDisplayOptions = []): ?string
     {

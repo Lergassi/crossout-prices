@@ -2,6 +2,7 @@
 
 namespace App\Commands\SandboxCommands;
 
+use App\Services\DataManager;
 use App\Services\PriceController;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,39 +12,21 @@ class PriceSandboxCommand extends Command
 {
     protected static $defaultName = 'sandbox.prices';
     private PriceController $_priceController;
+    private \PDO $_pdo;
+    private DataManager $_dataManager;
 
-    public function __construct(PriceController $priceController)
+    public function __construct(PriceController $priceController, \PDO $pdo, DataManager $dataManager)
     {
         $this->_priceController = $priceController;
+        $this->_pdo = $pdo;
+        $this->_dataManager = $dataManager;
         parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-//        $ID = 497;
-//        $this->_priceController->optimalRoute($ID);
-
-        $IDs = [
-            497,
-            482,
-            483,
-            112,
-            379,
-            389,
-            383,
-            395,
-            108,
-            //basic:
-            163,
-            126,
-            176,
-            186,
-            109,
-            172,
-        ];
-        foreach ($IDs as $ID) {
-            $this->_priceController->optimalRoute($ID);
-        }
+        $this->_main();
+//        $this->_resourcesPricesQuery();
 
         return 0;
     }
@@ -107,5 +90,58 @@ class PriceSandboxCommand extends Command
                 $item['total'],
             ]);
         }
+    }
+
+    private function _main()
+    {
+        $ID = 497;
+//        $ID = 186;
+//        $ID = 163;
+        $this->_priceController->optimalRoute($ID);
+
+        $IDs = [
+            497,
+            482,
+            483,
+            112,
+            379,
+            389,
+            383,
+            395,
+            108,
+            //basic:
+            163,
+            126,
+            176,
+            186,
+            109,
+            172,
+        ];
+//        foreach ($IDs as $ID) {
+//            $this->_priceController->optimalRoute($ID);
+//        }
+    }
+
+    private function _resourcesPricesQuery()
+    {
+//        $ID = 497;
+//
+//        $query =
+//            'select
+//                r.item_id,
+//                ri.item_id,
+//                ri.item_count
+//            from require_items ri
+//                left join recipes r on r.id = ri.recipe_id
+//                left join items i on r.item_id = i.id'
+//        ;
+//        $stmt = $this->_pdo->prepare($query);
+////        $stmt->bindValue(':item_id', $ID);
+//        $stmt->execute();
+//
+//        $result = $stmt->fetchAll();
+//        dump($result);
+
+        dump($this->_dataManager->findAllRequireItems());
     }
 }

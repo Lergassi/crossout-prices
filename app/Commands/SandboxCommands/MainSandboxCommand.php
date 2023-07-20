@@ -36,8 +36,8 @@ class MainSandboxCommand extends Command
 //        $this->_devContainerInject();
 //        $this->_devContainerInjectToCommand();
 //        $this->_devContainerInjectToCommand();
-//        $this->_devDataManager();
-        $this->_devMysqlFetchFloat();
+        $this->_devDataManager();
+//        $this->_devMysqlFetchFloat();
 
         return 0;
     }
@@ -165,8 +165,9 @@ class MainSandboxCommand extends Command
 //        $ID = '';
 //        $ID = null;
 
-        $requireItems = $dataManager->findHierarchyRequireItems($ID);
-        dump($requireItems);
+//        $requireItems = $dataManager->findHierarchyRequireItems($ID);
+//        dump($requireItems);
+        dump($dataManager->findRequireItems($ID));
     }
 
     private function _devMysqlFetchFloat()

@@ -69,6 +69,8 @@ $application->add(new \App\Commands\TestCommands\TestDotenvCommand());
 $application->add($container->get(\App\Commands\TestCommands\TestInjectContainerCommand::class));
 $application->add($container->get(\App\Commands\TestCommands\TestPDOInjectCommand::class));
 
+$application->add($container->get(\App\Commands\TestCommands\TestOptimalRouteCommand::class));
+
 //--------------------------------
 // run app
 //--------------------------------

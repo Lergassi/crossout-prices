@@ -4,11 +4,11 @@ namespace App\Types;
 
 enum FactionID: string
 {
-    case Engineers = 'engineers';
-    case Lunatics = 'lunatics';
-    case Nomads = 'nomads';
-    case Scavengers = 'scavengers';
-    case SteppenWolfs = 'steppen_wolfs';
-    case DawnChildren = 'dawn_children';
-    case FireStarters = 'fire_starters';
+    case Engineers = 'Engineers';
+    case Lunatics = 'Lunatics';
+    case Nomads = 'Nomads';
+    case Scavengers = 'Scavengers';
+    case SteppenWolfs = 'Steppenwolfs';
+    case DawnChildren = 'Dawn\'s Children';
+    case FireStarters = 'Firestarters';
 }

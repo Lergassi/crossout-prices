@@ -43,7 +43,7 @@ class PriceController
 //                    ];
 //                }
 
-                if ($result[$i]['i_category'] === CategoryID::Resource->value) {
+                if ($result[$i]['i_category'] === CategoryID::Resources->value) {
                     $price = $this->_dataManager->findOnePrice($result[$i]['ri_item_id']);
 //                    if (!isset($resourcePrices[$result[$i]['r_item_id']][$result[$i]['ri_item_id']])) {
 //                        $resourcePrices[$result[$i]['r_item_id']][$result[$i]['ri_item_id']] = round($result[$i]['ri_item_count'] / $stacks[$result[$i]['ri_item_id']] * $price['min_buy_price'], 2);
@@ -118,7 +118,7 @@ class PriceController
             $recipe = $this->_dataManager->findOneRecipe($result[$i]['r_item_id']);
             $requireItems = [];
             for ($j = 0; $j < $resultCount; ++$j) {
-                if ($result[$j]['r_item_id'] === $reversQueue[$i] && $result[$j]['i_category'] !== CategoryID::Resource->value) {
+                if ($result[$j]['r_item_id'] === $reversQueue[$i] && $result[$j]['i_category'] !== CategoryID::Resources->value) {
                     $requireItems[] = $result[$j];
                 }
             }

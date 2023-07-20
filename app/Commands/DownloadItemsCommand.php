@@ -7,7 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class LoadItemsCommand extends Command
+class DownloadItemsCommand extends Command
 {
     protected static $defaultName = 'download_items';
 

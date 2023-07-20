@@ -65,7 +65,7 @@ class DataManager
             where i.category = :category'
         ;
         $stmt = $this->_pdo->prepare($query);
-        $stmt->bindValue(':category', CategoryID::Resource->value);
+        $stmt->bindValue(':category', CategoryID::Resources->value);
         $stmt->execute();
 
         return $stmt->fetchAll();

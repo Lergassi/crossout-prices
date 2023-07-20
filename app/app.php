@@ -38,6 +38,9 @@ $containerBuilder->addDefinitions([
             ]
         );
     },
+    \App\Services\ProjectPath::class => function (ContainerInterface $container) {
+        return new \App\Services\ProjectPath($_ENV['APP_PROJECT_ROOT'] ?? '');
+    },
 ]);
 
 $container = $containerBuilder->build();
@@ -51,8 +54,9 @@ $application = new Application(
 //--------------------------------
 // commands
 //--------------------------------
-$application->add($container->get(\App\Commands\ListCommand::class));
-$application->add($container->get(\App\Commands\LoadItemsCommand::class));
+$application->add($container->get(\App\Commands\OptimalRouteCommand::class));
+$application->add($container->get(\App\Commands\DownloadItemsCommand::class));
+$application->add($container->get(\App\Commands\LoadItemsToDatabaseCommand::class));
 
 //todo: Сделать чтобы sandbox/test были не доступны на prod.
 //--------------------------------

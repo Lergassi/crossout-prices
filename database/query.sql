@@ -154,3 +154,17 @@ SELECT
 FROM query q
     left join items i on i.id = ri_item_id
 ;
+
+update items set category = 'Resource' where category = 'resource';
+update items set category = 'Cabins' where category = 'cabins';
+update items set category = 'Weapons' where category = 'weapons';
+update items set category = 'Hardware' where category = 'hardware';
+update items set category = 'Movement' where category = 'movement';
+
+update items set faction = 'Engineers' where faction = 'engineers';
+update items set faction = 'Lunatics' where faction = 'lunatics';
+update items set faction = 'Nomads' where faction = 'nomads';
+update items set faction = 'Scavengers' where faction = 'scavengers';
+update items set faction = 'Steppenwolfs' where faction = 'steppen_wolfs';
+update items set faction = 'Dawn\'s Children' where faction = 'dawn_children';
+update items set faction = 'Firestarters' where faction = 'fire_starters';

@@ -28,9 +28,9 @@ $containerBuilder = new ContainerBuilder();
 $containerBuilder->addDefinitions([
     PDO::class => function (ContainerInterface $container) {
         return new \PDO(
-            sprintf('mysql:host=%s;dbname=%s', $_ENV['APP_DB_HOST'], $_ENV['APP_DB_NAME']),
-            $_ENV['APP_DB_USER'],
-            $_ENV['APP_DB_PASSWORD'],
+            sprintf('mysql:host=%s;dbname=%s', $_ENV['APP_DB_HOST'] ?? '', $_ENV['APP_DB_NAME'] ?? ''),
+            $_ENV['APP_DB_USER'] ?? '',
+            $_ENV['APP_DB_PASSWORD'] ?? '',
             [
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
                 \PDO::ATTR_EMULATE_PREPARES => false,
@@ -52,6 +52,7 @@ $application = new Application(
 // commands
 //--------------------------------
 $application->add($container->get(\App\Commands\ListCommand::class));
+$application->add($container->get(\App\Commands\LoadItemsCommand::class));
 
 //todo: Сделать чтобы sandbox/test были не доступны на prod.
 //--------------------------------

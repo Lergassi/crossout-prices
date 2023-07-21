@@ -16,6 +16,68 @@ class DataManager
         $this->_pdo = $_pdo;
     }
 
+    public function addItem(
+        int $ID,
+        string $name,
+        string $category,
+        string $quality,
+        string|null $faction = null,
+    ): void
+    {
+        $query = 'insert into items (id, name, category, quality, faction) values (:id, :name, :category, :quality, :faction)';
+        $stmt = $this->_pdo->prepare($query);
+
+        $stmt->bindValue(':id', $ID);
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':category', $category);
+        $stmt->bindValue(':quality', $quality);
+        $stmt->bindValue(':faction', $faction);
+
+        $stmt->execute();
+    }
+
+    public function findItemsWithoutCategory($category): array
+    {
+        $query = 'select * from items where category <> :category';
+        $stmt = $this->_pdo->prepare($query);
+        $stmt->bindValue(':category', $category);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    public function findOneItem(int $ID): array
+    {
+        $query = 'select * from items where id = :id';
+        $stmt = $this->_pdo->prepare($query);
+        $stmt->bindValue(':id', $ID);
+
+        $stmt->execute();
+
+        return $stmt->fetch();
+    }
+
+    public function findItems(): array
+    {
+        $query = 'select * from items';
+        $stmt = $this->_pdo->prepare($query);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    public function hasItem(int $ID): bool
+    {
+        $query = 'select count(*) as count from items where id = :id';
+        $stmt = $this->_pdo->prepare($query);
+        $stmt->bindValue(':id', $ID);
+
+        $stmt->execute();
+
+        return $stmt->fetch()['count'] === 1;
+    }
+
     public function findOnePrice(int $itemID): array
     {
         $query = 'select * from prices where item_id = :item_id';
@@ -27,7 +89,7 @@ class DataManager
         return $stmt->fetch();
     }
     
-    public function findPrice(): array {return [];}
+//    public function findPrices(): array {return [];}
     public function findOneRecipe(int $itemID): array
     {
         $query = 'select * from recipes where item_id = :item_id';
@@ -39,7 +101,12 @@ class DataManager
         return $stmt->fetch();
     }
 
-    public function findRequireItems(int $itemID): array
+    /**
+     * @deprecated
+     * @param int $itemID
+     * @return array
+     */
+    public function _findRequireItemsWithJoin(int $itemID): array
     {
         $query = 'select * from require_items left join recipes r on r.id = require_items.recipe_id where r.item_id = :item_id';
         $stmt = $this->_pdo->prepare($query);
@@ -49,6 +116,28 @@ class DataManager
 
         return $stmt->fetchAll();
     }
+
+    public function findRequireItemsWithJoin(int $itemID): array
+    {
+        $query = 'select ri.*, i.name as i_name from require_items ri left join recipes r on r.id = ri.recipe_id left join items i on ri.item_id = i.id where r.item_id = :item_id';
+        $stmt = $this->_pdo->prepare($query);
+        $stmt->bindValue(':item_id', $itemID);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+//    public function findRequireItems(int $itemID): array
+//    {
+//        $query = 'select ri.* from require_items ri left join recipes r on r.id = ri.recipe_id where r.item_id = :item_id';
+//        $stmt = $this->_pdo->prepare($query);
+//        $stmt->bindValue(':item_id', $itemID);
+//
+//        $stmt->execute();
+//
+//        return $stmt->fetchAll();
+//    }
 
     //todo: Заготовка для стоимости ресурсов в 1 запрос.
     public function findAllRequireItems(): array
@@ -71,7 +160,7 @@ class DataManager
         return $stmt->fetchAll();
     }
 
-    public function findRecipe(): array {return [];}
+//    public function findRecipes(): array {return [];}
 
     public function findHierarchyRequireItems(int $ID): array
     {

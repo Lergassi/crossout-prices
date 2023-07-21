@@ -4,7 +4,8 @@
         "symfony/console": "^6.3",
         "symfony/var-dumper": "^6.3",
         "vlucas/phpdotenv": "^5.5",
-        "php-di/php-di": "^7.0"
+        "php-di/php-di": "^7.0",
+        "paquettg/php-html-parser": "^3.1"
     },
     "autoload": {
         "psr-4": {

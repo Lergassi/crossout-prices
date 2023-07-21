@@ -26,6 +26,10 @@ class PriceController
             53 => 100,
             85 => 100,
             785 => 100,
+            168 => 100,
+            337 => 100,
+            784 => 100,
+            919 => 100,
         ];
 
         $resultCount = count($result);

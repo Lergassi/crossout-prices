@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
-//todo: Только для dev.
-ini_set('error_reporting', E_ALL);
+//todo: Только для dev. Для prod оставить ~E_DEPRECATED.
+ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
@@ -54,9 +54,19 @@ $application = new Application(
 //--------------------------------
 // commands
 //--------------------------------
+$application->add($container->get(\App\Commands\MainCommand::class));
 $application->add($container->get(\App\Commands\OptimalRouteCommand::class));
+
 $application->add($container->get(\App\Commands\DownloadItemsCommand::class));
+$application->add($container->get(\App\Commands\DownloadRecipesCommand::class));
+$application->add($container->get(\App\Commands\DownloadPricesCommand::class));
+
+$application->add($container->get(\App\Commands\ManualLoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\LoadItemsToDatabaseCommand::class));
+$application->add($container->get(\App\Commands\LoadRecipesToDatabaseCommand::class));
+$application->add($container->get(\App\Commands\LoadPricesToDatabaseCommand::class));
+
+$application->add($container->get(\App\Commands\DetailItemCommand::class));
 
 //todo: Сделать чтобы sandbox/test были не доступны на prod.
 //--------------------------------

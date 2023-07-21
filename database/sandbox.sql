@@ -193,3 +193,6 @@ from require_items ri
     left join recipes r on r.id = ri.recipe_id
     left join items i on ri.item_id = i.id
 where i.category = 'resource'
+;
+
+select count(*) from require_items;

@@ -5,9 +5,12 @@ namespace App\Commands\SandboxCommands;
 use App\Commands\TestCommands\TestInjectContainerCommand;
 
 use App\Services\DataManager;
+use App\Services\PriceController;
 use App\Test\Foo;
+use App\Types\CategoryID;
 use DI\Container;
 use DI\ContainerBuilder;
+use JetBrains\PhpStorm\NoReturn;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,11 +24,15 @@ class MainSandboxCommand extends Command
     protected static $defaultName = 'sandbox';
     private ContainerInterface $_container;
     private \PDO $_pdo;
+    private DataManager $_dataManager;
+    private PriceController $_priceController;
 
     public function __construct(ContainerInterface $container)
     {
         $this->_container = $container;
         $this->_pdo = $container->get(\PDO::class);
+        $this->_dataManager = $container->get(DataManager::class);
+        $this->_priceController = $container->get(PriceController::class);
         parent::__construct(static::$defaultName);
     }
 
@@ -36,7 +43,8 @@ class MainSandboxCommand extends Command
 //        $this->_devContainerInject();
 //        $this->_devContainerInjectToCommand();
 //        $this->_devContainerInjectToCommand();
-        $this->_devDataManager();
+//        $this->_devDataManager();
+        $this->_allOptimalRoutes();
 //        $this->_devMysqlFetchFloat();
 
         return 0;
@@ -167,7 +175,7 @@ class MainSandboxCommand extends Command
 
 //        $requireItems = $dataManager->findHierarchyRequireItems($ID);
 //        dump($requireItems);
-        dump($dataManager->findRequireItems($ID));
+//        dump($dataManager->findRequireItemsWithJoin($ID));
     }
 
     private function _devMysqlFetchFloat()
@@ -178,5 +186,14 @@ class MainSandboxCommand extends Command
 
         $result = $stmt->fetchAll();
         dump($result);
+    }
+
+    private function _allOptimalRoutes(): void
+    {
+        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
+
+        foreach ($items as $item) {
+            $this->_priceController->optimalRoute($item['id']);
+        }
     }
 }

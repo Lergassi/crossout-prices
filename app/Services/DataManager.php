@@ -128,6 +128,18 @@ class DataManager
         return $stmt->fetchAll();
     }
 
+    public function findRequireItemsWithoutResources(int $itemID): array
+    {
+        $query = 'select i.name as i_name, ri.item_id as ri_item_id, ri.item_count as ri_item_count from require_items ri left join recipes r on r.id = ri.recipe_id left join items i on ri.item_id = i.id where r.item_id = :item_id and i.category <> :category';
+        $stmt = $this->_pdo->prepare($query);
+        $stmt->bindValue(':item_id', $itemID);
+        $stmt->bindValue(':category', CategoryID::Resources->value);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
 //    public function findRequireItems(int $itemID): array
 //    {
 //        $query = 'select ri.* from require_items ri left join recipes r on r.id = ri.recipe_id where r.item_id = :item_id';

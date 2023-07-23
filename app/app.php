@@ -41,6 +41,8 @@ $containerBuilder->addDefinitions([
     \App\Services\ProjectPath::class => function (ContainerInterface $container) {
         return new \App\Services\ProjectPath($_ENV['APP_PROJECT_ROOT'] ?? '');
     },
+//    \App\Commands\TestCommands\TestNameInjectCommand::class => \DI\autowire()->constructorParameter('name', 'test.inject_name'),
+//    \App\Commands\LoadPricesToDatabaseCommand::class => \DI\autowire()->constructorParameter('name', 'db.load_prices'),
 ]);
 
 $container = $containerBuilder->build();
@@ -66,7 +68,12 @@ $application->add($container->get(\App\Commands\LoadItemsToDatabaseCommand::clas
 $application->add($container->get(\App\Commands\LoadRecipesToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\LoadPricesToDatabaseCommand::class));
 
+$application->add($container->get(\App\Commands\InitCommand::class));
+$application->add($container->get(\App\Commands\UpdateCommand::class));
+
 $application->add($container->get(\App\Commands\DetailItemCommand::class));
+
+$application->add($container->get(\App\Commands\WipeCommand::class));
 
 //todo: Сделать чтобы sandbox/test были не доступны на prod.
 //--------------------------------
@@ -83,8 +90,10 @@ $application->add(new \App\Commands\TestCommands\TestVarDumperCommand());
 $application->add(new \App\Commands\TestCommands\TestDotenvCommand());
 $application->add($container->get(\App\Commands\TestCommands\TestInjectContainerCommand::class));
 $application->add($container->get(\App\Commands\TestCommands\TestPDOInjectCommand::class));
+//$application->add($container->get(\App\Commands\TestCommands\TestNameInjectCommand::class));
 
 $application->add($container->get(\App\Commands\TestCommands\TestOptimalRouteCommand::class));
+$application->add($container->get(\App\Commands\TestCommands\TestOptimalRoutesCommand::class));
 
 //--------------------------------
 // run app

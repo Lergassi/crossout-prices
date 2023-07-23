@@ -12,25 +12,29 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DownloadPricesCommand extends Command
 {
     protected static $defaultName = 'download_prices';
+
+    private string $_url;
+    private string $_path;
+
     private Downloader $_downloader;
-    private ProjectPath $_projectPath;
 
     public function __construct(Downloader $downloader, ProjectPath $projectPath)
     {
+        $this->_url = 'https://crossoutdb.com/export?showtable=true&sellprice=true&buyprice=true&id=true&removedItems=true';
+        $this->_path = $projectPath->build('data/prices', 'prices.html');
+
         $this->_downloader = $downloader;
-        $this->_projectPath = $projectPath;
         parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $url = 'https://crossoutdb.com/export?showtable=true&sellprice=true&buyprice=true&id=true&removedItems=true';
-//        $date = (new \DateTime())->format('d.m.Y_H:i:s');
-        $path = $this->_projectPath->build('data/prices', 'prices.html');
+        echo 'Загрузка цен начата.' . PHP_EOL;
 
-        $filesize = $this->_downloader->download($url, $path);
+        $filesize = $this->_downloader->download($this->_url, $this->_path);
 
-        echo sprintf('Данные загружены в файл %s (size: %s).', $path, $filesize) . PHP_EOL;
+        echo 'Загрузка цен завершена.' . PHP_EOL;
+        echo sprintf('Данные загружены в файл %s (size: %s).' . PHP_EOL, $this->_path, $filesize);
 
         return 0;
     }

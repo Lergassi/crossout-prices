@@ -4,6 +4,7 @@ namespace App\Commands\SandboxCommands;
 
 use App\Commands\TestCommands\TestInjectContainerCommand;
 
+use App\Commands\TestCommands\TestNameInjectCommand;
 use App\Services\DataManager;
 use App\Services\PriceController;
 use App\Test\Foo;
@@ -42,9 +43,9 @@ class MainSandboxCommand extends Command
 //        $this->_devContainer();
 //        $this->_devContainerInject();
 //        $this->_devContainerInjectToCommand();
-//        $this->_devContainerInjectToCommand();
+        $this->_devContainerInjectToCommand();
 //        $this->_devDataManager();
-        $this->_allOptimalRoutes();
+//        $this->_allOptimalRoutes();
 //        $this->_devMysqlFetchFloat();
 
         return 0;
@@ -149,9 +150,11 @@ class MainSandboxCommand extends Command
 
     private function _devContainerInjectToCommand()
     {
-//        dump($this->_container->get(Foo::class));
-        /** @var TestInjectContainerCommand $command */
-        $command = $this->_container->get(TestInjectContainerCommand::class);
+//        dd($this->_container->get(Foo::class));
+//        dump($this->_container->get(TestNameInjectCommand::class));
+//        /** @var TestInjectContainerCommand $command */
+//        $command = $this->_container->get(TestInjectContainerCommand::class);
+        $command = $this->_container->get(TestNameInjectCommand::class);
 //        dump($command);
         $command->execute(new StringInput(''), new NullOutput());
     }

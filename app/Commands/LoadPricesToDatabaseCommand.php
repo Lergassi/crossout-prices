@@ -11,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+//todo: Сделать обновление цен. Сейчас только создание.
 class LoadPricesToDatabaseCommand extends Command
 {
     protected static $defaultName = 'db.load_prices';
@@ -30,10 +31,13 @@ class LoadPricesToDatabaseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $path = $this->_projectPath->build('data/prices', 'prices.html');
+        $filename = 'prices.html';
+        $path = $this->_projectPath->build('data/prices', $filename);
         $html = $this->_loader->load($path);
 
+        echo sprintf('Начало обработки %s...' . PHP_EOL, $filename);
         $prices = $this->_parseHtmlPrices($html);
+        echo sprintf('Обработка %s завершена.' . PHP_EOL, $filename);
 
         $this->_pdo->beginTransaction();
 
@@ -51,6 +55,8 @@ class LoadPricesToDatabaseCommand extends Command
         }
 
         $this->_pdo->commit();
+
+        echo 'Цена загружены в базу данных.' . PHP_EOL;
 
         return 0;
     }

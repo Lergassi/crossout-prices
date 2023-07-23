@@ -14,11 +14,13 @@ class ManualLoadItemsToDatabaseCommand extends Command
 {
     protected static $defaultName = 'db.manual_load_items';
     private DataManager $_dataManager;
+    private \PDO $_pdo;
 
-    public function __construct(DataManager $dataManager)
+    public function __construct(DataManager $dataManager, \PDO $pdo)
     {
-        $this->_dataManager = $dataManager;
         parent::__construct(static::$defaultName);
+        $this->_dataManager = $dataManager;
+        $this->_pdo = $pdo;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -36,7 +38,10 @@ class ManualLoadItemsToDatabaseCommand extends Command
             ['ID' => 337, 'name' => 'Uranium ore', 'category' => CategoryID::Resources->value, 'quality' => QualityID::Common->value, 'faction' => null],
             //x100
             ['ID' => 919, 'name' => 'Engraved casings', 'category' => CategoryID::Resources->value, 'quality' => QualityID::Common->value, 'faction' => null],
+            ['ID' => 1479, 'name' => 'Iris', 'category' => CategoryID::Hardware->value, 'quality' => QualityID::Special->value, 'faction' => null],
         ];
+
+        $this->_pdo->beginTransaction();
 
         foreach ($resources as $resource) {
             $this->_dataManager->addItem(
@@ -47,6 +52,8 @@ class ManualLoadItemsToDatabaseCommand extends Command
                 $resource['faction'],
             );
         }
+
+        $this->_pdo->commit();
 
         return 0;
     }

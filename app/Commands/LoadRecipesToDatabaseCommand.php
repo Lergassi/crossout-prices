@@ -31,7 +31,7 @@ class LoadRecipesToDatabaseCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $unavailableItemIDs = [
-            1477,   //miller, todo: Убрать при добавлении предметов в бд.
+//            1477,   //miller, todo: Убрать при добавлении предметов в бд.
         ];
 
         $result = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
@@ -60,15 +60,15 @@ class LoadRecipesToDatabaseCommand extends Command
         $insertRequireItemsQuery = 'insert into require_items (recipe_id, item_id, item_count) VALUES (:recipe_id, :item_id, :item_count)';
 
         $insertRecipeStmt = $this->_pdo->prepare($insertRecipeQuery);
-        $insertRequireItemsStmt = $this->_pdo->prepare($insertRequireItemsQuery);
 
         $insertRecipeStmt->bindValue(':craft_cost', $craftCost);
-        $insertRecipeStmt->bindValue(':result_count', $content['recipe']['item']['amount']);
+        $insertRecipeStmt->bindValue(':result_count', $content['recipe']['item']['craftingResultAmount']);
         $insertRecipeStmt->bindValue(':item_id', $ID);
         $insertRecipeStmt->execute();
 
         $recipeID = intval($this->_pdo->lastInsertId());
 
+        $insertRequireItemsStmt = $this->_pdo->prepare($insertRequireItemsQuery);
         foreach ($content['recipe']['ingredients'] as $data) {
             if ($data['id'] === -1) continue;
 

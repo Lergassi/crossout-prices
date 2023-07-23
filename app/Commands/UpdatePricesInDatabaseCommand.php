@@ -11,10 +11,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-//todo: Сделать обновление цен. Сейчас только создание.
-class LoadPricesToDatabaseCommand extends Command
+class UpdatePricesInDatabaseCommand extends Command
 {
-    protected static $defaultName = 'db.load_prices';
+    protected static $defaultName = 'db.update_prices';
     private ProjectPath $_projectPath;
     private Loader $_loader;
     private \PDO $_pdo;
@@ -42,16 +41,31 @@ class LoadPricesToDatabaseCommand extends Command
         $this->_pdo->beginTransaction();
 
         $insertPriceQuery = 'insert into prices (max_sell_price, min_buy_price, item_id) values (:max_sell_price, :min_buy_price, :item_id)';
+        $selectPriceQuery = 'select * from prices where item_id = :item_id';
+        $updatePriceQuery = 'update prices set max_sell_price = :max_sell_price, min_buy_price = :min_buy_price where item_id = :item_id';
 
         $insertPriceStmt = $this->_pdo->prepare($insertPriceQuery);
+        $selectPriceStmt = $this->_pdo->prepare($selectPriceQuery);
+        $updatePriceStmt = $this->_pdo->prepare($updatePriceQuery);
 
         foreach ($prices as $price) {
             if (!$this->_dataManager->hasItem($price['id'])) continue;
 
-            $insertPriceStmt->bindValue(':max_sell_price', $price['max_sell_price']);
-            $insertPriceStmt->bindValue(':min_buy_price', $price['min_buy_price']);
-            $insertPriceStmt->bindValue(':item_id', $price['id']);
-            $insertPriceStmt->execute();
+            $selectPriceStmt->bindValue(':item_id', $price['id']);
+            $selectPriceStmt->execute();
+            $existsPrice = $selectPriceStmt->fetch();
+
+            if (!$existsPrice) {
+                $insertPriceStmt->bindValue(':max_sell_price', $price['max_sell_price']);
+                $insertPriceStmt->bindValue(':min_buy_price', $price['min_buy_price']);
+                $insertPriceStmt->bindValue(':item_id', $price['id']);
+                $insertPriceStmt->execute();
+            } else {
+                $updatePriceStmt->bindValue(':max_sell_price', $price['max_sell_price']);
+                $updatePriceStmt->bindValue(':min_buy_price', $price['min_buy_price']);
+                $updatePriceStmt->bindValue(':item_id', $price['id']);
+                $updatePriceStmt->execute();
+            }
         }
 
         $this->_pdo->commit();

@@ -23,16 +23,16 @@ class InitCommand extends Command
     private ManualLoadItemsToDatabaseCommand $_manualLoadItemsToDatabaseCommand;
     private LoadItemsToDatabaseCommand $_loadItemsToDatabaseCommand;
     private LoadRecipesToDatabaseCommand $_loadRecipesToDatabaseCommand;
-    private LoadPricesToDatabaseCommand $_loadPricesToDatabaseCommand;
+    private UpdatePricesInDatabaseCommand $_loadPricesToDatabaseCommand;
 
     public function __construct(
-        DownloadItemsCommand $downloadItemsCommand,
-        DownloadRecipesCommand $downloadRecipesCommand,
-        DownloadPricesCommand $downloadPricesCommand,
+        DownloadItemsCommand             $downloadItemsCommand,
+        DownloadRecipesCommand           $downloadRecipesCommand,
+        DownloadPricesCommand            $downloadPricesCommand,
         ManualLoadItemsToDatabaseCommand $manualLoadItemsToDatabaseCommand,
-        LoadItemsToDatabaseCommand $loadItemsToDatabaseCommand,
-        LoadRecipesToDatabaseCommand $loadRecipesToDatabaseCommand,
-        LoadPricesToDatabaseCommand $loadPricesToDatabaseCommand,
+        LoadItemsToDatabaseCommand       $loadItemsToDatabaseCommand,
+        LoadRecipesToDatabaseCommand     $loadRecipesToDatabaseCommand,
+        UpdatePricesInDatabaseCommand    $loadPricesToDatabaseCommand,
     )
     {
         parent::__construct(static::$defaultName);

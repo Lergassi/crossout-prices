@@ -66,7 +66,7 @@ $application->add($container->get(\App\Commands\DownloadPricesCommand::class));
 $application->add($container->get(\App\Commands\ManualLoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\LoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\LoadRecipesToDatabaseCommand::class));
-$application->add($container->get(\App\Commands\LoadPricesToDatabaseCommand::class));
+$application->add($container->get(\App\Commands\UpdatePricesInDatabaseCommand::class));
 
 $application->add($container->get(\App\Commands\InitCommand::class));
 $application->add($container->get(\App\Commands\UpdateCommand::class));

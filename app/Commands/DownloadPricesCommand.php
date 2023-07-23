@@ -20,11 +20,12 @@ class DownloadPricesCommand extends Command
 
     public function __construct(Downloader $downloader, ProjectPath $projectPath)
     {
+        parent::__construct(static::$defaultName);
+
         $this->_url = 'https://crossoutdb.com/export?showtable=true&sellprice=true&buyprice=true&id=true&removedItems=true';
         $this->_path = $projectPath->build('data/prices', 'prices.html');
 
         $this->_downloader = $downloader;
-        parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

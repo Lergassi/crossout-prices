@@ -7,6 +7,7 @@ use App\Types\CategoryID;
 class PriceController
 {
     private DataManager $_dataManager;
+    private float $_fee = 0.1;
 
     public function __construct(DataManager $dataManager)
     {
@@ -32,6 +33,7 @@ class PriceController
             919 => 100,
         ];
 
+        $itemPrice = $this->_dataManager->findOnePrice($ID);
         $resultCount = count($hierarchyResult);
         $parentItemID = 0;
         $resourcePrices = [];
@@ -129,7 +131,10 @@ class PriceController
             ]);
         }
         echo $separator;
-//        echo sprintf('Profit: %s.' . PHP_EOL, round($total[array_key_last($total)]['buy'] - $total[array_key_last($total)]['craft'], 2));
+        echo vsprintf('| Profit: %s (%s)' . PHP_EOL, [
+            round($itemPrice['max_sell_price'] * (1 - $this->_fee) - $total[array_key_last($total)]['craft'], 2),
+            $itemPrice['max_sell_price'],
+        ]);
         echo $separator;
     }
 }

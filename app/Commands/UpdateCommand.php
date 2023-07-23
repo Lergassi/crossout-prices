@@ -11,16 +11,16 @@ class UpdateCommand extends Command
 {
     protected static $defaultName = 'update';
     private DownloadPricesCommand $_downloadPricesCommand;
-    private LoadPricesToDatabaseCommand $_loadPricesToDatabaseCommand;
+    private UpdatePricesInDatabaseCommand $_updatePricesInDatabaseCommand;
 
     public function __construct(
-        DownloadPricesCommand $downloadPricesCommand,
-        LoadPricesToDatabaseCommand $loadPricesToDatabaseCommand,
+        DownloadPricesCommand         $downloadPricesCommand,
+        UpdatePricesInDatabaseCommand $updatePricesInDatabaseCommand,
     )
     {
         parent::__construct(static::$defaultName);
         $this->_downloadPricesCommand = $downloadPricesCommand;
-        $this->_loadPricesToDatabaseCommand = $loadPricesToDatabaseCommand;
+        $this->_updatePricesInDatabaseCommand = $updatePricesInDatabaseCommand;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,7 +28,7 @@ class UpdateCommand extends Command
         echo '### update start ###' . PHP_EOL;
 
         $this->_downloadPricesCommand->execute($input, $output);
-        $this->_loadPricesToDatabaseCommand->execute($input, $output);
+        $this->_updatePricesInDatabaseCommand->execute($input, $output);
 
         echo '### update end ###' . PHP_EOL;
 

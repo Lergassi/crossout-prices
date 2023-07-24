@@ -41,6 +41,10 @@ create table prices
     max_sell_price decimal(19, 2) unsigned not null,
     min_buy_price decimal(19, 2) unsigned not null,
     item_id int unsigned not null,
+    c_optimal_craft_cost float unsigned null,
+    c_profit float null,
+    c_type varchar(16) null,
+    c_optimal_craft_cost_date timestamp null,
     primary key (id),
     foreign key (item_id) references items (id),
     unique (item_id)

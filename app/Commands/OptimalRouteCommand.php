@@ -29,7 +29,7 @@ class OptimalRouteCommand extends Command
     {
         $ID = intval($input->getArgument('ID'));
 
-        $this->_priceController->optimalRoute($ID);
+        $this->_priceController->detailItem($ID);
 
         return 0;
     }

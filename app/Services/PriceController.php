@@ -6,15 +6,16 @@ use App\Types\CategoryID;
 
 class PriceController
 {
-    private DataManager $_dataManager;
     private float $_fee = 0.1;
+
+    private DataManager $_dataManager;
 
     public function __construct(DataManager $dataManager)
     {
         $this->_dataManager = $dataManager;
     }
 
-    public function optimalRoute(int $ID): void
+    public function calculateOptimalRoute(int $ID, \DateTime $date = null): void
     {
         $originalItemID = $ID;
 
@@ -34,6 +35,7 @@ class PriceController
         ];
 
         $itemPrice = $this->_dataManager->findOnePrice($ID);
+        $itemRecipe = $this->_dataManager->findOneRecipe($ID);
         $resultCount = count($hierarchyResult);
         $parentItemID = 0;
         $resourcePrices = [];
@@ -44,8 +46,7 @@ class PriceController
             if ($hierarchyResult[$i]['r_item_id'] === $ID && $hierarchyResult[$i]['r_parent_item_id'] === $parentItemID) {
                 if ($hierarchyResult[$i]['i_category'] === CategoryID::Resources->value) {
                     $price = $this->_dataManager->findOnePrice($hierarchyResult[$i]['ri_item_id']);
-                        $itemResourcePrices[$hierarchyResult[$i]['r_item_id']][$hierarchyResult[$i]['ri_item_id']] = round($hierarchyResult[$i]['ri_item_count'] / $itemStacks[$hierarchyResult[$i]['ri_item_id']] * $price['min_buy_price'], 2);
-//                    }
+                    $itemResourcePrices[$hierarchyResult[$i]['r_item_id']][$hierarchyResult[$i]['ri_item_id']] = round($hierarchyResult[$i]['ri_item_count'] / $itemStacks[$hierarchyResult[$i]['ri_item_id']] * $price['min_buy_price'], 2);
                 } else {
                     $queue[] = [
                         'r_item_id' => $hierarchyResult[$i]['r_item_id'],
@@ -115,26 +116,100 @@ class PriceController
             }
         }
 
-        //todo: Сделать таблицу или найти библиотеку. Нужно выровнить табы.
+        $optimalCraftCost = $total[$originalItemID]['craft'];
+        $type = $total[$originalItemID]['type'];
+        $totalSellPrice = round($itemPrice['max_sell_price'] * $itemRecipe['result_count'], 2);
+        $profit = round($this->_priceWithoutFee($totalSellPrice) - $optimalCraftCost, 2);
+
+//        $separator = str_repeat('-', 64) . PHP_EOL;
+//        echo $separator;
+//        echo sprintf("| Item: %s", $originalItemID) . PHP_EOL;
+//        echo $separator;
+//        echo sprintf("| ID\t| craft\t| buy | type " . PHP_EOL);
+//        echo $separator;
+//        foreach ($total as $key => $item) {
+//            echo vsprintf("| %s\t| %s\t| %s | %s" . PHP_EOL, [
+//                $key,
+//                $item['craft'],
+//                $item['buy'],
+//                $item['type'],
+//            ]);
+//        }
+//        echo $separator;
+//        echo vsprintf('| Profit: %s (%s)' . PHP_EOL, [
+//            $profit,
+//            $totalSellPrice,
+//        ]);
+//        echo $separator;
+
+        $this->_dataManager->updateOptimalCraft($originalItemID, $optimalCraftCost, $profit, $type, $date);
+    }
+
+    public function detailItem(int $ID): void
+    {
+        $hierarchyResult = $this->_dataManager->findHierarchyPrices($ID);
+        if (!count($hierarchyResult)) throw new \Exception(sprintf('Данные для ID=%s не найдены.', $ID));
+
+        $item = $this->_dataManager->findOneItem($ID);
+        $itemPrice = $this->_dataManager->findOnePrice($ID);
+        $resultCount = count($hierarchyResult);
+        $parentItemID = 0;
+        $queue = [];
+        $tmpQueue = [];
+        $result = [];
+        for ($i = 0; $i < $resultCount; ++$i) {
+            if ($hierarchyResult[$i]['r_item_id'] === $ID && $hierarchyResult[$i]['r_parent_item_id'] === $parentItemID) {
+                if ($hierarchyResult[$i]['i_category'] !== CategoryID::Resources->value) {
+                    $tmpQueue[] = [
+                        'item' => $hierarchyResult[$i],
+                        'r_item_id' => $hierarchyResult[$i]['r_item_id'],
+                        'ri_item_id' => $hierarchyResult[$i]['ri_item_id'],
+                    ];
+                }
+            }//end if
+
+            if ($i + 1 >= $resultCount) {
+                //todo: Нужно добавить порядок сортировки. Сейчас в выборке обратная сортировка относительно crossoutdb.com.
+                foreach ($tmpQueue as $tmpValue) {
+                    $queue[] = $tmpValue;
+                }
+                $tmpQueue = [];
+                if (count($queue)) {
+                    $_item = array_pop($queue);
+                    $ID = $_item['ri_item_id'];
+                    $parentItemID = $_item['r_item_id'];
+                    $i = -1;
+                    $result[] = $_item['item'];
+                }
+            }
+        }//end for
+
         $separator = str_repeat('-', 64) . PHP_EOL;
         echo $separator;
-        echo sprintf("| Item: %s", $originalItemID) . PHP_EOL;
-        echo $separator;
-        echo sprintf("| ID\t| craft\t| buy | type " . PHP_EOL);
-        echo $separator;
-        foreach ($total as $key => $item) {
-            echo vsprintf("| %s\t| %s\t| %s | %s" . PHP_EOL, [
-                $key,
-                $item['craft'],
-                $item['buy'],
-                $item['type'],
+        foreach ($result as $data) {
+            echo vsprintf('|%s %s | %s | %s | %s | %s |' . PHP_EOL, [
+                str_repeat('-----', $data['level']),
+                $data['ri_item_id'],
+                $data['i_name'],
+                $data['p_optimal_craft_cost'],
+                $data['p_min_buy_price'],
+                $data['p_type'],
             ]);
         }
         echo $separator;
-        echo vsprintf('| Profit: %s (%s)' . PHP_EOL, [
-            round($itemPrice['max_sell_price'] * (1 - $this->_fee) - $total[array_key_last($total)]['craft'], 2),
+        echo sprintf("| Item: %s (%s)", $item['name'], $item['id']) . PHP_EOL;
+        echo $separator;
+        echo vsprintf('| Profit: %s, %s/%s(%s)' . PHP_EOL, [
+            $itemPrice['c_profit'],
+            $itemPrice['c_optimal_craft_cost'],
+            $this->_priceWithoutFee($itemPrice['max_sell_price']),
             $itemPrice['max_sell_price'],
         ]);
         echo $separator;
+    }
+
+    private function _priceWithoutFee(float $price): float
+    {
+        return round($price * (1 - $this->_fee), 2);
     }
 }

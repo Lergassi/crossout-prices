@@ -43,10 +43,12 @@ class MainSandboxCommand extends Command
 //        $this->_devContainer();
 //        $this->_devContainerInject();
 //        $this->_devContainerInjectToCommand();
-        $this->_devContainerInjectToCommand();
+//        $this->_devContainerInjectToCommand();
+//        $this->_devDatetime();
 //        $this->_devDataManager();
 //        $this->_allOptimalRoutes();
 //        $this->_devMysqlFetchFloat();
+        $this->_devDetailItem();
 
         return 0;
     }
@@ -196,7 +198,27 @@ class MainSandboxCommand extends Command
         $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
 
         foreach ($items as $item) {
-            $this->_priceController->optimalRoute($item['id']);
+            $this->_priceController->calculateOptimalRoute($item['id']);
         }
+    }
+
+    private function _devDatetime()
+    {
+        $format = 'Y-m-d H:i:s';
+//        dump((new \DateTime())->format('Y-m-d H:i:s'));
+
+        $query = 'insert into test_table (date_at, timestamp_col) values (:date_at, :timestamp_col)';
+        $stmt = $this->_pdo->prepare($query);
+
+        $stmt->bindValue(':date_at', (new \DateTime())->format($format));
+        $stmt->bindValue(':timestamp_col', (new \DateTime())->format($format));
+
+        $stmt->execute();
+    }
+
+    private function _devDetailItem()
+    {
+        $ID = 497;
+        $this->_priceController->detailItem($ID);
     }
 }

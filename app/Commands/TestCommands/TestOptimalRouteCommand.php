@@ -51,7 +51,7 @@ class TestOptimalRouteCommand extends Command
         $leftSideSeparator = str_repeat('-', $sideSeparatorLength);
         $rightSideSeparator = str_repeat('-', $sideSeparatorLength + $endBlockMessageLength % 2);
         foreach ($IDs as $ID) {
-            $this->_priceController->optimalRoute($ID);
+            $this->_priceController->calculateOptimalRoute($ID);
             echo $leftSideSeparator . $endBlockMessage . $rightSideSeparator . PHP_EOL;
         }
 

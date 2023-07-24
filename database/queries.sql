@@ -63,7 +63,7 @@ order by s desc
 ;
 
 # Иерархия всех предметов и ресурсов.
-# v0.0.1
+# recursive tree v0.0.1
 set @item_id = 497;
 WITH RECURSIVE query AS (
     select
@@ -105,7 +105,7 @@ FROM query
          left join items i on i.id = ri_item_id
 ;
 
-# v0.0.2 Со столбцом parent для require_item.
+# recursive tree v0.0.2 Со столбцом parent для require_item.
 set @item_id = 497;
 WITH RECURSIVE query AS (
     select
@@ -121,7 +121,8 @@ WITH RECURSIVE query AS (
         left join require_items ri1 on r1.id = ri1.recipe_id
         left join items i1 on i1.id = r1.item_id
     where
-        r1.item_id = @item_id
+#         r1.item_id = @item_id
+        r1.item_id = 497
 
     UNION ALL
 

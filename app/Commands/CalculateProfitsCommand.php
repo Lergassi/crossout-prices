@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Commands\TestCommands;
+namespace App\Commands;
 
 use App\Services\DataManager;
 use App\Services\PriceController;
@@ -9,12 +9,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Быстрая проверка работоспособности всех предметов с echo в консоли на каждый предмет.
- */
-class TestOptimalRoutesCommand extends Command
+class CalculateProfitsCommand extends Command
 {
-    protected static $defaultName = 'test.optimal_routes_fast';
+    protected static $defaultName = 'db.calc';
+
     private DataManager $_dataManager;
     private PriceController $_priceController;
 
@@ -27,10 +25,15 @@ class TestOptimalRoutesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        echo 'Рассчет оптимальных цен запушен...' . PHP_EOL;
+
+        $date = new \DateTime();
         $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
         foreach ($items as $item) {
-            $this->_priceController->calculateOptimalRoute($item['id']);
+            $this->_priceController->calculateOptimalRoute($item['id'], $date);
         }
+
+        echo 'Рассчет оптимальных цен завершен.' . PHP_EOL;
 
         return 0;
     }

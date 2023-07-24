@@ -97,7 +97,7 @@ class PriceSandboxCommand extends Command
         $ID = 497;
 //        $ID = 186;
 //        $ID = 163;
-        $this->_priceController->optimalRoute($ID);
+        $this->_priceController->calculateOptimalRoute($ID);
 
         $IDs = [
             497,

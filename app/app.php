@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-//todo: Только для dev. Для prod оставить ~E_DEPRECATED.
 ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -41,8 +40,6 @@ $containerBuilder->addDefinitions([
     \App\Services\ProjectPath::class => function (ContainerInterface $container) {
         return new \App\Services\ProjectPath($_ENV['APP_PROJECT_ROOT'] ?? '');
     },
-//    \App\Commands\TestCommands\TestNameInjectCommand::class => \DI\autowire()->constructorParameter('name', 'test.inject_name'),
-//    \App\Commands\LoadPricesToDatabaseCommand::class => \DI\autowire()->constructorParameter('name', 'db.load_prices'),
 ]);
 
 $container = $containerBuilder->build();
@@ -58,6 +55,7 @@ $application = new Application(
 //--------------------------------
 $application->add($container->get(\App\Commands\MainCommand::class));
 $application->add($container->get(\App\Commands\OptimalRouteCommand::class));
+$application->add($container->get(\App\Commands\ProfitsCommand::class));
 
 $application->add($container->get(\App\Commands\DownloadItemsCommand::class));
 $application->add($container->get(\App\Commands\DownloadRecipesCommand::class));
@@ -71,11 +69,10 @@ $application->add($container->get(\App\Commands\UpdatePricesInDatabaseCommand::c
 $application->add($container->get(\App\Commands\InitCommand::class));
 $application->add($container->get(\App\Commands\UpdateCommand::class));
 
-$application->add($container->get(\App\Commands\DetailItemCommand::class));
+$application->add($container->get(\App\Commands\CalculateProfitsCommand::class));
 
 $application->add($container->get(\App\Commands\WipeCommand::class));
 
-//todo: Сделать чтобы sandbox/test были не доступны на prod.
 //--------------------------------
 // sandbox commands
 //--------------------------------

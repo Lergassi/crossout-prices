@@ -30,12 +30,12 @@ class DownloadPricesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        echo 'Загрузка цен начата.' . PHP_EOL;
+        echo 'Загрузка цен запущена...' . PHP_EOL;
 
         $filesize = $this->_downloader->download($this->_url, $this->_path);
 
-        echo 'Загрузка цен завершена.' . PHP_EOL;
         echo sprintf('Данные загружены в файл %s (size: %s).' . PHP_EOL, $this->_path, $filesize);
+        echo 'Загрузка цен завершена.' . PHP_EOL;
 
         return 0;
     }

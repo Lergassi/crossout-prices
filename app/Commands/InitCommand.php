@@ -18,12 +18,12 @@ class InitCommand extends Command
 
     private DownloadItemsCommand $_downloadItemsCommand;
     private DownloadRecipesCommand $_downloadRecipesCommand;
-    private DownloadPricesCommand $_downloadPricesCommand;
 
     private ManualLoadItemsToDatabaseCommand $_manualLoadItemsToDatabaseCommand;
     private LoadItemsToDatabaseCommand $_loadItemsToDatabaseCommand;
     private LoadRecipesToDatabaseCommand $_loadRecipesToDatabaseCommand;
-    private UpdatePricesInDatabaseCommand $_loadPricesToDatabaseCommand;
+
+    private UpdateCommand $_updateCommand;
 
     public function __construct(
         DownloadItemsCommand             $downloadItemsCommand,
@@ -32,19 +32,18 @@ class InitCommand extends Command
         ManualLoadItemsToDatabaseCommand $manualLoadItemsToDatabaseCommand,
         LoadItemsToDatabaseCommand       $loadItemsToDatabaseCommand,
         LoadRecipesToDatabaseCommand     $loadRecipesToDatabaseCommand,
-        UpdatePricesInDatabaseCommand    $loadPricesToDatabaseCommand,
+        UpdateCommand $updateCommand,
     )
     {
         parent::__construct(static::$defaultName);
 
         $this->_downloadItemsCommand = $downloadItemsCommand;
         $this->_downloadRecipesCommand = $downloadRecipesCommand;
-        $this->_downloadPricesCommand = $downloadPricesCommand;
 
         $this->_manualLoadItemsToDatabaseCommand = $manualLoadItemsToDatabaseCommand;
         $this->_loadItemsToDatabaseCommand = $loadItemsToDatabaseCommand;
         $this->_loadRecipesToDatabaseCommand = $loadRecipesToDatabaseCommand;
-        $this->_loadPricesToDatabaseCommand = $loadPricesToDatabaseCommand;
+        $this->_updateCommand = $updateCommand;
     }
 
     /*
@@ -62,10 +61,9 @@ class InitCommand extends Command
         $this->_downloadRecipesCommand->execute($input, $output);
 
         $this->_loadRecipesToDatabaseCommand->execute($input, $output);
-        $this->_loadPricesToDatabaseCommand->execute($input, $output);
 
         //Цены должны загружаться в конце, чтобы быть оптимальными из-за долгой загрузки рецептов.
-        $this->_downloadPricesCommand->execute($input, $output);
+        $this->_updateCommand->execute($input, $output);
 
         return 0;
     }

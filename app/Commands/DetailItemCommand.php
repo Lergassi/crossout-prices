@@ -9,9 +9,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @indev Заготовка для информации без роутов.
+ */
 class DetailItemCommand extends Command
 {
-    protected static $defaultName = 'detail_item';
+    protected static $defaultName = 'detail';
     private DataManager $_dataManager;
 
     public function __construct(DataManager $dataManager)

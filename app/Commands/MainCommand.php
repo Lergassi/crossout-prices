@@ -20,7 +20,7 @@ class MainCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_priceController->optimalRoute(497);
+        $this->_priceController->calculateOptimalRoute(497);
 
         return 0;
     }

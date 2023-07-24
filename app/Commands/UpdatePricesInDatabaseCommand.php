@@ -30,6 +30,8 @@ class UpdatePricesInDatabaseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        echo 'Начало загрузки цен в бд...' . PHP_EOL;
+
         $filename = 'prices.html';
         $path = $this->_projectPath->build('data/prices', $filename);
         $html = $this->_loader->load($path);
@@ -70,7 +72,7 @@ class UpdatePricesInDatabaseCommand extends Command
 
         $this->_pdo->commit();
 
-        echo 'Цена загружены в базу данных.' . PHP_EOL;
+        echo 'Цена загружены в бд.' . PHP_EOL;
 
         return 0;
     }

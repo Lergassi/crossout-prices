@@ -106,9 +106,10 @@ class DataManager
 
     public function totalItemProfits(): array
     {
-        $query = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where i.category <> :category order by p.c_profit asc';
+        $query = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where i.category <> :category and i.craftable = :craftable order by p.c_profit asc';
         $stmt = $this->_pdo->prepare($query);
         $stmt->bindValue(':category', CategoryID::Resources->value);
+        $stmt->bindValue(':craftable', 1);
 
         $stmt->execute();
 

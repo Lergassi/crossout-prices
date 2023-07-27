@@ -1,38 +1,36 @@
 # start transaction;
 
-# todo: Нужно запускать каждый раз. Не удобно при доработки скрипта.
 set @scrap_meta_id = 53;
 set @wires_id = 85;
 set @copper_id = 43;
 set @plastic_id = 785;
 set @electronics_id = 201;
 
-insert into items (id, name, category, quality, faction) VALUES (497, 'Icarus VII', 'weapons', 'epic', 'dawn_children');
+insert into items (id, name, category, craftable, quality, faction) VALUES (497, 'Icarus VII', 'weapons', 1, 'epic', 'dawn_children');
 
 # Пока без стаков.
-insert into items (id, name, category, quality, faction) VALUES (53, 'Scrap Metal', 'resource', 'common', null);
-insert into items (id, name, category, quality, faction) VALUES (85, 'Wires', 'resource', 'common', null);
-insert into items (id, name, category, quality, faction) VALUES (43, 'Copper', 'resource', 'common', null);
-insert into items (id, name, category, quality, faction) VALUES (785, 'Plastic', 'resource', 'common', null);
-insert into items (id, name, category, quality, faction) VALUES (201, 'Electronics', 'resource', 'common', null);
+insert into items (id, name, category, craftable, quality, faction) VALUES (53, 'Scrap Metal x100', 'resource', 1, 'common', null);
+insert into items (id, name, category, craftable, quality, faction) VALUES (85, 'Wires x100', 'resource', 1, 'common', null);
+insert into items (id, name, category, craftable, quality, faction) VALUES (43, 'Copper x100', 'resource', 1, 'common', null);
+insert into items (id, name, category, craftable, quality, faction) VALUES (785, 'Plastic x100', 'resource', 1, 'common', null);
 
-insert into items (id, name, category, quality, faction) VALUES (482, 'Lunar IV ST', 'movement', 'special', 'dawn_children');
-insert into items (id, name, category, quality, faction) VALUES (483, 'Lunar IV', 'movement', 'special', 'dawn_children');
-insert into items (id, name, category, quality, faction) VALUES (112, 'Dun horse', 'movement', 'special', 'nomads');
+insert into items (id, name, category, craftable, quality, faction) VALUES (482, 'Lunar IV ST', 'movement', 1, 'special', 'dawn_children');
+insert into items (id, name, category, craftable, quality, faction) VALUES (483, 'Lunar IV', 'movement', 1, 'special', 'dawn_children');
+insert into items (id, name, category, craftable, quality, faction) VALUES (112, 'Dun horse', 'movement', 1, 'special', 'nomads');
 
-insert into items (id, name, category, quality, faction) VALUES (379, 'Racing wheel ST', 'movement', 'rare', 'nomads');
-insert into items (id, name, category, quality, faction) VALUES (389, 'Landing gear ST', 'movement', 'rare', 'nomads');
-insert into items (id, name, category, quality, faction) VALUES (163, 'Medium wheel ST', 'movement', 'common', 'engineers');
-insert into items (id, name, category, quality, faction) VALUES (126, 'Small wheel ST', 'movement', 'common', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (379, 'Racing wheel ST', 'movement', 1, 'rare', 'nomads');
+insert into items (id, name, category, craftable, quality, faction) VALUES (389, 'Landing gear ST', 'movement', 1, 'rare', 'nomads');
+insert into items (id, name, category, craftable, quality, faction) VALUES (163, 'Medium wheel ST', 'movement', 1, 'common', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (126, 'Small wheel ST', 'movement', 1, 'common', 'engineers');
 
-insert into items (id, name, category, quality, faction) VALUES (383, 'Racing wheel', 'movement', 'rare', 'nomads');
-insert into items (id, name, category, quality, faction) VALUES (395, 'Landing gear', 'movement', 'rare', 'nomads');
-insert into items (id, name, category, quality, faction) VALUES (186, 'Medium wheel', 'movement', 'common', 'engineers');
-insert into items (id, name, category, quality, faction) VALUES (176, 'Small wheel', 'movement', 'common', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (383, 'Racing wheel', 'movement', 1, 'rare', 'nomads');
+insert into items (id, name, category, craftable, quality, faction) VALUES (395, 'Landing gear', 'movement', 1, 'rare', 'nomads');
+insert into items (id, name, category, craftable, quality, faction) VALUES (186, 'Medium wheel', 'movement', 1, 'common', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (176, 'Small wheel', 'movement', 1, 'common', 'engineers');
 
-insert into items (id, name, category, quality, faction) VALUES (108, 'R-2 Chill', 'hardware', 'rare', 'engineers');
-insert into items (id, name, category, quality, faction) VALUES (109, 'R-1 Breeze', 'hardware', 'common', 'engineers');
-insert into items (id, name, category, quality, faction) VALUES (172, 'Radio', 'hardware', 'common', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (108, 'R-2 Chill', 'hardware', 1, 'rare', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (109, 'R-1 Breeze', 'hardware', 1, 'common', 'engineers');
+insert into items (id, name, category, craftable, quality, faction) VALUES (172, 'Radio', 'hardware', 'common', 1, 'engineers');
 
 insert into recipes (craft_cost, result_count, item_id) values (15, 1, 497);
 

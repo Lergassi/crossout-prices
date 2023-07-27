@@ -21,26 +21,20 @@ class LoadRecipesToDatabaseCommand extends Command
 
     public function __construct(ProjectPath $projectPath, Loader $loader, \PDO $pdo, DataManager $dataManager)
     {
+        parent::__construct(static::$defaultName);
         $this->_projectPath = $projectPath;
         $this->_loader = $loader;
         $this->_pdo = $pdo;
         $this->_dataManager = $dataManager;
-        parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $unavailableItemIDs = [
-//            1477,   //miller, todo: Убрать при добавлении предметов в бд.
-        ];
-
-        $result = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
+        $result = $this->_dataManager->findCraftableItems();
 
         $this->_pdo->beginTransaction();
 
         foreach ($result as $item) {
-            if (in_array($item['id'], $unavailableItemIDs)) continue;
-
             $this->_load($item['id']);
         }
 

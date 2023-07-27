@@ -27,10 +27,10 @@ class TestOptimalRoutesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
-        foreach ($items as $item) {
-            $this->_priceController->calculateOptimalRoute($item['id']);
-        }
+//        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
+//        foreach ($items as $item) {
+//            $this->_priceController->calculateOptimalRoute($item['id']);
+//        }
 
         return 0;
     }

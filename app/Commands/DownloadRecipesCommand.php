@@ -28,20 +28,24 @@ class DownloadRecipesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $query = 'select * from items where category <> :category';
+        $query = 'select * from items where category <> :category and craftable = :craftable';
         $stmt = $this->_pdo->prepare($query);
         $stmt->bindValue(':category', CategoryID::Resources->value);
+        $stmt->bindValue(':craftable', 1);
         $stmt->execute();
         $result = $stmt->fetchAll();
 
         $downloader = new Downloader();
-        $delay = 1000 * 1000;
+        $delay = 250 * 1000;
         $urlPattern = 'https://crossoutdb.com/api/v1/recipe/%s';
         $pathPattern = $this->_projectPath->build('data/recipes', '%s' . '.json');
         $count = 0;
         foreach ($result as $item) {
             $url = sprintf($urlPattern, $item['id']);
             $path = sprintf($pathPattern, $item['id']);
+
+            //todo: Перезапись будет запускаться через ключ.
+            if (file_exists($path)) continue;
 
             $filesize = $downloader->download($url, $path);
             ++$count;

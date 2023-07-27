@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Services\Downloader;
 use App\Types\CategoryID;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,9 +12,14 @@ class DownloadItemsCommand extends Command
 {
     protected static $defaultName = 'download_items';
 
-    public function __construct()
+    private Downloader $downloader;
+
+    public function __construct(
+        Downloader $downloader,
+    )
     {
         parent::__construct(static::$defaultName);
+        $this->downloader = $downloader;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,7 +34,9 @@ class DownloadItemsCommand extends Command
             CategoryID::Weapons->value,
             CategoryID::Hardware->value,
             CategoryID::Movement->value,
+            CategoryID::Resources->value,
         ];
+        $urlPattern = 'https://crossoutdb.com/api/v1/items?category=%s';
         $delay = 250 * 1000;
         foreach ($categories as $category) {
             $targetFilepath = implode('/', [
@@ -36,31 +44,13 @@ class DownloadItemsCommand extends Command
                 sprintf('%s.json', $category),
             ]);
 
-            $this->_download($category, $targetFilepath);
+            $filesize = $this->downloader->download(sprintf($urlPattern, $category), $targetFilepath);
             usleep($delay);
-            echo sprintf('Загружено: %s в %s.', $category, $targetFilepath) . PHP_EOL;
+            echo sprintf('Загружено: %s в %s (size: %s).', $category, $targetFilepath, $filesize) . PHP_EOL;
         }
 
         echo 'Данные загружены.' . PHP_EOL;
 
         return 0;
-    }
-
-    private function _download(string $category, string $filepath): void
-    {
-        $url = 'https://crossoutdb.com/api/v1/items?category=' . $category;
-
-        $ch = curl_init($url);
-        $fp = fopen($filepath, 'w');
-
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-
-        curl_exec($ch);
-        if(curl_error($ch)) {
-            fwrite($fp, curl_error($ch));
-        }
-        curl_close($ch);
-        fclose($fp);
     }
 }

@@ -4,10 +4,10 @@ namespace App\Types;
 
 enum QualityID: string
 {
-    case Common = 'common';
-    case Rare = 'rare';
-    case Special = 'special';
-    case Epic = 'epic';
-    case Legendary = 'legendary';
-    case Relic = 'relic';
+    case Common = 'Common';
+    case Rare = 'Rare';
+    case Special = 'Special';
+    case Epic = 'Epic';
+    case Legendary = 'Legendary';
+    case Relic = 'Relic';
 }

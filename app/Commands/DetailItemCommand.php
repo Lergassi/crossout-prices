@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DetailItemCommand extends Command
 {
-    protected static $defaultName = 'detail';
+    protected static $defaultName = 'detail_item';
     private DataManager $_dataManager;
 
     public function __construct(DataManager $dataManager)

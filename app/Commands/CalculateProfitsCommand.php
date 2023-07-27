@@ -28,7 +28,7 @@ class CalculateProfitsCommand extends Command
         echo 'Рассчет оптимальных цен запушен...' . PHP_EOL;
 
         $date = new \DateTime();
-        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
+        $items = $this->_dataManager->findCraftableItems();
         foreach ($items as $item) {
             $this->_priceController->calculateOptimalRoute($item['id'], $date);
         }

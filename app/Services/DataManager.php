@@ -36,11 +36,16 @@ class DataManager
         $stmt->execute();
     }
 
-    public function findItemsWithoutCategory($category): array
+    /**
+     * Без учёта Resources: repair kit и тд.
+     * @return array
+     */
+    public function findCraftableItems(): array
     {
-        $query = 'select * from items where category <> :category';
+        $query = 'select * from items where category <> :category and craftable = :craftable';
         $stmt = $this->_pdo->prepare($query);
-        $stmt->bindValue(':category', $category);
+        $stmt->bindValue(':category', CategoryID::Resources->value);
+        $stmt->bindValue(':craftable', 1);
         $stmt->execute();
 
         return $stmt->fetchAll();

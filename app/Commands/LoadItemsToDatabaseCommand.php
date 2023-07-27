@@ -21,6 +21,14 @@ class LoadItemsToDatabaseCommand extends Command
         FactionID::DawnChildren->value,
         FactionID::FireStarters->value,
     ];
+    private array $availableCategories = [
+        CategoryID::Cabins->value,
+        CategoryID::Weapons->value,
+        CategoryID::Hardware->value,
+        CategoryID::Movement->value,
+        CategoryID::Resources->value,
+    ];
+
     private \PDO $_pdo;
     private ProjectPath $_path;
 
@@ -33,16 +41,9 @@ class LoadItemsToDatabaseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $categories = [
-            CategoryID::Cabins->value,
-            CategoryID::Weapons->value,
-            CategoryID::Hardware->value,
-            CategoryID::Movement->value,
-        ];
-
         $total = 0;
         $this->_pdo->beginTransaction();
-        foreach ($categories as $category) {
+        foreach ($this->availableCategories as $category) {
             $count = $this->_loadCategory($category);
             echo vsprintf('Добавлено записей: %s, для категории: %s', [
                     $count,
@@ -59,6 +60,7 @@ class LoadItemsToDatabaseCommand extends Command
     }
 
     /**
+     * todo: Переделать. Загружать нужно из источника (файла), который получается выше - сюда уже строку/объект. И можно будет легко выбрать файл с ручной загрузкой.
      * @param string $category
      * @return int Кол-во добавленных записей.
      * @throws \Exception
@@ -77,12 +79,7 @@ class LoadItemsToDatabaseCommand extends Command
 
         $count = 0;
         foreach ($content as $item) {
-            if (
-                !$item['faction'] ||
-                !in_array($item['faction'], $this->_availableFaction)
-            ) continue;
-
-            $query = 'insert into items (id, name, category, quality, faction) values (:id, :name, :category, :quality, :faction)';
+            $query = 'insert into items (id, name, category, quality, faction, craftable) values (:id, :name, :category, :quality, :faction, :craftable)';
             $stmt = $this->_pdo->prepare($query);
 
             $stmt->bindValue(':id', $item['id']);
@@ -90,6 +87,7 @@ class LoadItemsToDatabaseCommand extends Command
             $stmt->bindValue(':category', $item['categoryName']);
             $stmt->bindValue(':quality', $item['rarityName']);
             $stmt->bindValue(':faction', $item['faction']);
+            $stmt->bindValue(':craftable', intval($item['craftVsBuy'] !== 'Uncraftable'));
 
             $stmt->execute();
 

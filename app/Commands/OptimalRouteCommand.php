@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class OptimalRouteCommand extends Command
 {
     protected static $defaultName = 'optimal_route';
+    protected static $defaultDescription = 'Отображает уже рассчитанные данные о выгоде и оптимальной стратегии крафта.';
 
     private PriceController $_priceController;
 

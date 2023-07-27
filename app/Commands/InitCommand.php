@@ -19,7 +19,6 @@ class InitCommand extends Command
     private DownloadItemsCommand $_downloadItemsCommand;
     private DownloadRecipesCommand $_downloadRecipesCommand;
 
-    private ManualLoadItemsToDatabaseCommand $_manualLoadItemsToDatabaseCommand;
     private LoadItemsToDatabaseCommand $_loadItemsToDatabaseCommand;
     private LoadRecipesToDatabaseCommand $_loadRecipesToDatabaseCommand;
 
@@ -28,8 +27,6 @@ class InitCommand extends Command
     public function __construct(
         DownloadItemsCommand             $downloadItemsCommand,
         DownloadRecipesCommand           $downloadRecipesCommand,
-        DownloadPricesCommand            $downloadPricesCommand,
-        ManualLoadItemsToDatabaseCommand $manualLoadItemsToDatabaseCommand,
         LoadItemsToDatabaseCommand       $loadItemsToDatabaseCommand,
         LoadRecipesToDatabaseCommand     $loadRecipesToDatabaseCommand,
         UpdateCommand $updateCommand,
@@ -40,7 +37,6 @@ class InitCommand extends Command
         $this->_downloadItemsCommand = $downloadItemsCommand;
         $this->_downloadRecipesCommand = $downloadRecipesCommand;
 
-        $this->_manualLoadItemsToDatabaseCommand = $manualLoadItemsToDatabaseCommand;
         $this->_loadItemsToDatabaseCommand = $loadItemsToDatabaseCommand;
         $this->_loadRecipesToDatabaseCommand = $loadRecipesToDatabaseCommand;
         $this->_updateCommand = $updateCommand;
@@ -54,14 +50,9 @@ class InitCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->_downloadItemsCommand->execute($input, $output);
-
-        $this->_manualLoadItemsToDatabaseCommand->execute($input, $output);
         $this->_loadItemsToDatabaseCommand->execute($input, $output);
-
         $this->_downloadRecipesCommand->execute($input, $output);
-
         $this->_loadRecipesToDatabaseCommand->execute($input, $output);
-
         //Цены должны загружаться в конце, чтобы быть оптимальными из-за долгой загрузки рецептов.
         $this->_updateCommand->execute($input, $output);
 

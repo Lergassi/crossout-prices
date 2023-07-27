@@ -4,3 +4,7 @@ alter table prices
     add c_type varchar(16) null,
     add c_optimal_craft_cost_date timestamp null
 ;
+
+alter table items
+    add craftable bool not null
+;

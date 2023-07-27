@@ -195,11 +195,11 @@ class MainSandboxCommand extends Command
 
     private function _allOptimalRoutes(): void
     {
-        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
-
-        foreach ($items as $item) {
-            $this->_priceController->calculateOptimalRoute($item['id']);
-        }
+//        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
+//
+//        foreach ($items as $item) {
+//            $this->_priceController->calculateOptimalRoute($item['id']);
+//        }
     }
 
     private function _devDatetime()

@@ -53,7 +53,7 @@ $application = new Application(
 //--------------------------------
 // commands
 //--------------------------------
-$application->add($container->get(\App\Commands\MainCommand::class));
+//$application->add($container->get(\App\Commands\MainCommand::class));
 $application->add($container->get(\App\Commands\OptimalRouteCommand::class));
 $application->add($container->get(\App\Commands\ProfitsCommand::class));
 
@@ -61,7 +61,7 @@ $application->add($container->get(\App\Commands\DownloadItemsCommand::class));
 $application->add($container->get(\App\Commands\DownloadRecipesCommand::class));
 $application->add($container->get(\App\Commands\DownloadPricesCommand::class));
 
-$application->add($container->get(\App\Commands\ManualLoadItemsToDatabaseCommand::class));
+//$application->add($container->get(\App\Commands\ManualLoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\LoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\LoadRecipesToDatabaseCommand::class));
 $application->add($container->get(\App\Commands\UpdatePricesInDatabaseCommand::class));
@@ -70,6 +70,7 @@ $application->add($container->get(\App\Commands\InitCommand::class));
 $application->add($container->get(\App\Commands\UpdateCommand::class));
 
 $application->add($container->get(\App\Commands\CalculateProfitsCommand::class));
+$application->add($container->get(\App\Commands\CalculateProfitCommand::class));
 
 $application->add($container->get(\App\Commands\WipeCommand::class));
 

@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Services\PriceController;
+use stringEncode\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,17 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MainCommand extends Command
 {
     protected static $defaultName = 'main';
-    private PriceController $_priceController;
 
-    public function __construct(PriceController $priceController)
+    public function __construct()
     {
-        $this->_priceController = $priceController;
         parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_priceController->calculateOptimalRoute(497);
+        throw new Exception('indev');
 
         return 0;
     }

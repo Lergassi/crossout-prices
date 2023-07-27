@@ -14,6 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UpdatePricesInDatabaseCommand extends Command
 {
     protected static $defaultName = 'db.update_prices';
+    protected static $defaultDescription = 'Обновляет цены из уже загруженного prices.html.';
+
     private ProjectPath $_projectPath;
     private Loader $_loader;
     private \PDO $_pdo;
@@ -21,11 +23,11 @@ class UpdatePricesInDatabaseCommand extends Command
 
     public function __construct(ProjectPath $projectPath, Loader $loader, \PDO $pdo, DataManager $dataManager)
     {
+        parent::__construct(static::$defaultName);
         $this->_projectPath = $projectPath;
         $this->_loader = $loader;
         $this->_pdo = $pdo;
         $this->_dataManager = $dataManager;
-        parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -51,6 +53,7 @@ class UpdatePricesInDatabaseCommand extends Command
         $updatePriceStmt = $this->_pdo->prepare($updatePriceQuery);
 
         foreach ($prices as $price) {
+            //todo: Сделать наоборот: получить предметы и искать цену в файле.
             if (!$this->_dataManager->hasItem($price['id'])) continue;
 
             $selectPriceStmt->bindValue(':item_id', $price['id']);
@@ -73,6 +76,7 @@ class UpdatePricesInDatabaseCommand extends Command
         $this->_pdo->commit();
 
         echo 'Цена загружены в бд.' . PHP_EOL;
+//        echo 'Необходимо запустить db.calc.' . PHP_EOL;
 
         return 0;
     }

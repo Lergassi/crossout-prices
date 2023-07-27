@@ -10,6 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UpdateCommand extends Command
 {
     protected static $defaultName = 'update';
+
     private DownloadPricesCommand $_downloadPricesCommand;
     private UpdatePricesInDatabaseCommand $_updatePricesInDatabaseCommand;
     private CalculateProfitsCommand $_calculateProfitCommand;

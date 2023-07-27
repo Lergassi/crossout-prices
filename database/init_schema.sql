@@ -3,6 +3,7 @@ create table if not exists items
     id int unsigned,    # Как в crossoutdb.
     name varchar(128),
     category varchar(32) not null,
+    craftable bool not null,
     quality varchar(32) not null,
     faction varchar(32) null,
     primary key (id)

@@ -2,7 +2,7 @@
 
 namespace App\Test;
 
-use App\Services\ProjectPath;
+use App\Service\ProjectPath;
 
 class Foo
 {

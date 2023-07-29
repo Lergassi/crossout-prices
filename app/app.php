@@ -17,7 +17,7 @@ use Symfony\Component\Console\Application;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
-new \App\Services\Dump\InitCustomDumper();
+new \App\Service\Dump\InitCustomDumper();
 
 //--------------------------------
 //region init container
@@ -37,8 +37,8 @@ $containerBuilder->addDefinitions([
             ]
         );
     },
-    \App\Services\ProjectPath::class => function (ContainerInterface $container) {
-        return new \App\Services\ProjectPath($_ENV['APP_PROJECT_ROOT'] ?? '');
+    \App\Service\ProjectPath::class => function (ContainerInterface $container) {
+        return new \App\Service\ProjectPath($_ENV['APP_PROJECT_ROOT'] ?? '');
     },
 ]);
 
@@ -54,44 +54,44 @@ $application = new Application(
 // commands
 //--------------------------------
 //$application->add($container->get(\App\Commands\MainCommand::class));
-$application->add($container->get(\App\Commands\OptimalRouteCommand::class));
-$application->add($container->get(\App\Commands\ProfitsCommand::class));
+$application->add($container->get(\App\Command\OptimalRouteCommand::class));
+$application->add($container->get(\App\Command\ProfitsCommand::class));
 
-$application->add($container->get(\App\Commands\DownloadItemsCommand::class));
-$application->add($container->get(\App\Commands\DownloadRecipesCommand::class));
-$application->add($container->get(\App\Commands\DownloadPricesCommand::class));
+$application->add($container->get(\App\Command\DownloadItemsCommand::class));
+$application->add($container->get(\App\Command\DownloadRecipesCommand::class));
+$application->add($container->get(\App\Command\DownloadPricesCommand::class));
 
 //$application->add($container->get(\App\Commands\ManualLoadItemsToDatabaseCommand::class));
-$application->add($container->get(\App\Commands\LoadItemsToDatabaseCommand::class));
-$application->add($container->get(\App\Commands\LoadRecipesToDatabaseCommand::class));
-$application->add($container->get(\App\Commands\UpdatePricesInDatabaseCommand::class));
+$application->add($container->get(\App\Command\LoadItemsToDatabaseCommand::class));
+$application->add($container->get(\App\Command\LoadRecipesToDatabaseCommand::class));
+$application->add($container->get(\App\Command\UpdatePricesInDatabaseCommand::class));
 
-$application->add($container->get(\App\Commands\InitCommand::class));
-$application->add($container->get(\App\Commands\UpdateCommand::class));
+$application->add($container->get(\App\Command\InitCommand::class));
+$application->add($container->get(\App\Command\UpdateCommand::class));
 
-$application->add($container->get(\App\Commands\CalculateProfitsCommand::class));
-$application->add($container->get(\App\Commands\CalculateProfitCommand::class));
+$application->add($container->get(\App\Command\CalculateProfitsCommand::class));
+$application->add($container->get(\App\Command\CalculateProfitCommand::class));
 
-$application->add($container->get(\App\Commands\WipeCommand::class));
+$application->add($container->get(\App\Command\WipeCommand::class));
 
 //--------------------------------
 // sandbox commands
 //--------------------------------
-$application->add(new \App\Commands\SandboxCommands\MainSandboxCommand($container));
-$application->add($container->get(\App\Commands\SandboxCommands\PriceSandboxCommand::class));
+$application->add(new \App\Command\SandboxCommands\MainSandboxCommand($container));
+$application->add($container->get(\App\Command\SandboxCommands\PriceSandboxCommand::class));
 
 //--------------------------------
 // test commands
 //--------------------------------
-$application->add(new \App\Commands\TestCommands\TestCommand());
-$application->add(new \App\Commands\TestCommands\TestVarDumperCommand());
-$application->add(new \App\Commands\TestCommands\TestDotenvCommand());
-$application->add($container->get(\App\Commands\TestCommands\TestInjectContainerCommand::class));
-$application->add($container->get(\App\Commands\TestCommands\TestPDOInjectCommand::class));
+$application->add(new \App\Command\TestCommands\TestCommand());
+$application->add(new \App\Command\TestCommands\TestVarDumperCommand());
+$application->add(new \App\Command\TestCommands\TestDotenvCommand());
+$application->add($container->get(\App\Command\TestCommands\TestInjectContainerCommand::class));
+$application->add($container->get(\App\Command\TestCommands\TestPDOInjectCommand::class));
 //$application->add($container->get(\App\Commands\TestCommands\TestNameInjectCommand::class));
 
-$application->add($container->get(\App\Commands\TestCommands\TestOptimalRouteCommand::class));
-$application->add($container->get(\App\Commands\TestCommands\TestOptimalRoutesCommand::class));
+$application->add($container->get(\App\Command\TestCommands\TestOptimalRouteCommand::class));
+$application->add($container->get(\App\Command\TestCommands\TestOptimalRoutesCommand::class));
 
 //--------------------------------
 // run app

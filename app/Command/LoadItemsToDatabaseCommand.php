@@ -74,23 +74,19 @@ class LoadItemsToDatabaseCommand extends Command
      */
     private function _loadCategory(string $category): int
     {
-        $filepath = $this->_path->build('data', $category . '.json');
-        if (!file_exists($filepath)) throw new \Exception(sprintf('Файл %s не найден.', $filepath));
+        $dir = 'data';
 
-        $fp = fopen($filepath, 'r');
-        $json = fread($fp, filesize($filepath));
-        fclose($fp);
+        $itemsJson = $this->_loader->load($this->_path->build($dir, $category . '.json'));
+        $items = $this->_serializer->decode($itemsJson, true);
 
-        $content = $this->_serializer->decode($json, true);
-
-        $availableCraftItemsJson = $this->_loader->load($this->_path->build('data', 'available_craft_items.json'));
+        $availableCraftItemsJson = $this->_loader->load($this->_path->build($dir, 'available_craft_items.json'));
         $availableCraftItems = $this->_serializer->decode($availableCraftItemsJson);
 
         $query = 'insert into items (id, name, category, quality, faction, craftable, available_craft) values (:id, :name, :category, :quality, :faction, :craftable, :available_craft)';
         $stmt = $this->_pdo->prepare($query);
 
         $count = 0;
-        foreach ($content as $item) {
+        foreach ($items as $item) {
             $stmt->bindValue(':id', $item['id']);
             $stmt->bindValue(':name', $item['name']);
             $stmt->bindValue(':category', $item['categoryName']);

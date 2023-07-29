@@ -33,11 +33,9 @@ class LoadRecipesToDatabaseCommand extends Command
         $result = $this->_dataManager->findCraftableItems();
 
         $this->_pdo->beginTransaction();
-
         foreach ($result as $item) {
             $this->_load($item['id']);
         }
-
         $this->_pdo->commit();
 
         return 0;

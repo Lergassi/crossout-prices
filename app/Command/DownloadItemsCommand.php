@@ -25,7 +25,7 @@ class DownloadItemsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $projectDir = $_ENV['APP_PROJECT_ROOT'] ?? '';
-        $targetDir = $projectDir. '/data';
+        $targetDir = $projectDir. '/data/items';
 
         if (!file_exists($targetDir)) throw new \Exception(sprintf('Директория %s не найдена.', $targetDir));
 

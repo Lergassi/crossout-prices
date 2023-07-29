@@ -15,22 +15,7 @@ class LoadItemsToDatabaseCommand extends Command
 {
     protected static $defaultName = 'db.load_items';
 
-    private array $_availableFaction = [
-        FactionID::Engineers->value,
-        FactionID::Lunatics->value,
-        FactionID::Nomads->value,
-        FactionID::Scavengers->value,
-        FactionID::SteppenWolfs->value,
-        FactionID::DawnChildren->value,
-        FactionID::FireStarters->value,
-    ];
-    private array $availableCategories = [
-        CategoryID::Cabins->value,
-        CategoryID::Weapons->value,
-        CategoryID::Hardware->value,
-        CategoryID::Movement->value,
-        CategoryID::Resources->value,
-    ];
+    private array $availableCraftItems;
 
     private \PDO $_pdo;
     private ProjectPath $_path;
@@ -40,6 +25,7 @@ class LoadItemsToDatabaseCommand extends Command
     public function __construct(\PDO $pdo, ProjectPath $path, Loader $loader, Serializer $serializer)
     {
         parent::__construct(static::$defaultName);
+        $this->availableCraftItems = [];
         $this->_pdo = $pdo;
         $this->_path = $path;
         $this->_loader = $loader;
@@ -48,17 +34,33 @@ class LoadItemsToDatabaseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $itemsDir = 'data/items';
+        $manualItemsDir = 'data';
+        $paths = [
+            $this->_path->build($itemsDir, CategoryID::Cabins->value . '.json'),
+            $this->_path->build($itemsDir, CategoryID::Weapons->value . '.json'),
+            $this->_path->build($itemsDir, CategoryID::Hardware->value . '.json'),
+            $this->_path->build($itemsDir, CategoryID::Movement->value . '.json'),
+            $this->_path->build($itemsDir, CategoryID::Resources->value . '.json'),
+            $this->_path->build($manualItemsDir, 'items.json'),
+        ];
+
+        $availableCraftItemsJson = $this->_loader->load($this->_path->build('data/available_craft_items.json'));
+        $this->availableCraftItems = $this->_serializer->decode($availableCraftItemsJson);
+
         $total = 0;
         $this->_pdo->beginTransaction();
-        foreach ($this->availableCategories as $category) {
-            $count = $this->_loadCategory($category);
-            echo vsprintf('Добавлено записей: %s, для категории: %s', [
+        foreach ($paths as $path) {
+            $itemsJson = $this->_loader->load($path);
+            $items = $this->_serializer->decode($itemsJson, true);
+
+            $count = $this->_loadCategory($items);
+            echo vsprintf('Добавлено записей: %s, аз файла: %s', [
                     $count,
-                    $category,
+                    $path,
                 ]) . PHP_EOL;
             $total += $count;
         }
-
         $this->_pdo->commit();
 
         echo sprintf('Загрузка данных в бд завершена. Всего добавлено записей: %s.' . PHP_EOL, $total);
@@ -67,21 +69,13 @@ class LoadItemsToDatabaseCommand extends Command
     }
 
     /**
-     * todo: Переделать. Загружать нужно из источника (файла), который получается выше - сюда уже строку/объект. И можно будет легко выбрать файл с ручной загрузкой.
      * @param string $category
      * @return int Кол-во добавленных записей.
      * @throws \Exception
      */
-    private function _loadCategory(string $category): int
+//    private function _loadCategory(string $category): int
+    private function _loadCategory(array $items): int
     {
-        $dir = 'data';
-
-        $itemsJson = $this->_loader->load($this->_path->build($dir, $category . '.json'));
-        $items = $this->_serializer->decode($itemsJson, true);
-
-        $availableCraftItemsJson = $this->_loader->load($this->_path->build($dir, 'available_craft_items.json'));
-        $availableCraftItems = $this->_serializer->decode($availableCraftItemsJson);
-
         $query = 'insert into items (id, name, category, quality, faction, craftable, available_craft) values (:id, :name, :category, :quality, :faction, :craftable, :available_craft)';
         $stmt = $this->_pdo->prepare($query);
 
@@ -93,7 +87,7 @@ class LoadItemsToDatabaseCommand extends Command
             $stmt->bindValue(':quality', $item['rarityName']);
             $stmt->bindValue(':faction', $item['faction']);
             $stmt->bindValue(':craftable', intval($item['craftVsBuy'] !== 'Uncraftable'));
-            $stmt->bindValue(':available_craft', intval(in_array($item['id'], $availableCraftItems)));
+            $stmt->bindValue(':available_craft', $this->isAvailableCraft($item['id']));
 
             $stmt->execute();
 
@@ -101,5 +95,10 @@ class LoadItemsToDatabaseCommand extends Command
         }
 
         return $count;
+    }
+
+    private function isAvailableCraft(int $ID): int
+    {
+        return intval(in_array($ID, $this->availableCraftItems));
     }
 }

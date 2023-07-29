@@ -6,6 +6,7 @@ use App\Service\DataManager;
 use App\Service\Loader;
 use App\Service\PriceController;
 use App\Service\ProjectPath;
+use App\Service\Serializer;
 use PHPHtmlParser\Dom;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,14 +21,16 @@ class UpdatePricesInDatabaseCommand extends Command
     private Loader $_loader;
     private \PDO $_pdo;
     private DataManager $_dataManager;
+    private Serializer $_serializer;
 
-    public function __construct(ProjectPath $projectPath, Loader $loader, \PDO $pdo, DataManager $dataManager)
+    public function __construct(ProjectPath $projectPath, Loader $loader, \PDO $pdo, DataManager $dataManager, \App\Service\Serializer $serializer)
     {
         parent::__construct(static::$defaultName);
         $this->_projectPath = $projectPath;
         $this->_loader = $loader;
         $this->_pdo = $pdo;
         $this->_dataManager = $dataManager;
+        $this->_serializer = $serializer;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -35,14 +38,15 @@ class UpdatePricesInDatabaseCommand extends Command
         echo 'Начало загрузки цен в бд...' . PHP_EOL;
 
         $filename = 'prices.html';
-        $path = $this->_projectPath->build('data/prices', $filename);
+        $path = $this->_projectPath->build('data', $filename);
         $html = $this->_loader->load($path);
 
         echo sprintf('Начало обработки %s...' . PHP_EOL, $filename);
         $prices = $this->_parseHtmlPrices($html);
         echo sprintf('Обработка %s завершена.' . PHP_EOL, $filename);
 
-        $this->_pdo->beginTransaction();
+        $manualPrices = $this->_serializer->decode($this->_loader->load($this->_projectPath->build('data/prices.json')), true);
+        $prices = array_merge($prices, $manualPrices);
 
         $insertPriceQuery = 'insert into prices (max_sell_price, min_buy_price, item_id) values (:max_sell_price, :min_buy_price, :item_id)';
         $selectPriceQuery = 'select * from prices where item_id = :item_id';
@@ -52,6 +56,7 @@ class UpdatePricesInDatabaseCommand extends Command
         $selectPriceStmt = $this->_pdo->prepare($selectPriceQuery);
         $updatePriceStmt = $this->_pdo->prepare($updatePriceQuery);
 
+        $this->_pdo->beginTransaction();
         foreach ($prices as $price) {
             //todo: Сделать наоборот: получить предметы и искать цену в файле.
             if (!$this->_dataManager->hasItem($price['id'])) continue;
@@ -72,11 +77,9 @@ class UpdatePricesInDatabaseCommand extends Command
                 $updatePriceStmt->execute();
             }
         }
-
         $this->_pdo->commit();
 
         echo 'Цена загружены в бд.' . PHP_EOL;
-//        echo 'Необходимо запустить db.calc.' . PHP_EOL;
 
         return 0;
     }
@@ -90,10 +93,10 @@ class UpdatePricesInDatabaseCommand extends Command
         foreach ($elements as $element) {
             $tdCollection = $element->find('td');
             $id = intval($tdCollection[2]->text);
-            $prices[$id] = [
+            $prices[] = [
+                'id' => $id,
                 'max_sell_price' => floatval($tdCollection[0]->text),
                 'min_buy_price' => floatval($tdCollection[1]->text),
-                'id' => $id,
             ];
         }
 

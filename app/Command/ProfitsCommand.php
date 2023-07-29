@@ -32,12 +32,13 @@ class ProfitsCommand extends Command
     {
         $allItems = $input->getOption('all');
 
-        $table = new CliTableRender(8, [
+        $table = new CliTableRender(9, [
             'index',
             'id',
             'name',
             'category',
             'optimal craft cost',
+            'min buy price',
             'max sell price',
             'profit',
             'type',
@@ -51,6 +52,7 @@ class ProfitsCommand extends Command
                 $price['i_name'],
                 $price['i_category'],
                 $price['c_optimal_craft_cost'],
+                $price['min_buy_price'],
                 $price['max_sell_price'],
                 $price['c_profit'],
                 $price['c_type'],

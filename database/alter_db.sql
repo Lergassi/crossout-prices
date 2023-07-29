@@ -8,3 +8,7 @@ alter table prices
 alter table items
     add craftable bool not null
 ;
+
+alter table items
+    add available_craft bool not null
+;

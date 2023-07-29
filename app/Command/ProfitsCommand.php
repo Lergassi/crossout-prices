@@ -20,8 +20,18 @@ class ProfitsCommand extends Command
         $this->_dataManager = $dataManager;
     }
 
+    protected function configure()
+    {
+        $this->addOption(
+            'all',
+            'a',
+        );
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $allItems = $input->getOption('all');
+
         $table = new CliTableRender(8, [
             'index',
             'id',
@@ -33,7 +43,7 @@ class ProfitsCommand extends Command
             'type',
         ]);
 
-        $prices = $this->_dataManager->totalItemProfits();
+        $prices = $this->_dataManager->totalItemProfits(!$allItems);
         foreach ($prices as $index => $price) {
             $table->add([
                 $index + 1,

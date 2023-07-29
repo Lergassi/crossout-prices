@@ -61,10 +61,10 @@ $application->add($container->get(\App\Command\DownloadItemsCommand::class));
 $application->add($container->get(\App\Command\DownloadRecipesCommand::class));
 $application->add($container->get(\App\Command\DownloadPricesCommand::class));
 
-//$application->add($container->get(\App\Commands\ManualLoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Command\LoadItemsToDatabaseCommand::class));
 $application->add($container->get(\App\Command\LoadRecipesToDatabaseCommand::class));
 $application->add($container->get(\App\Command\UpdatePricesInDatabaseCommand::class));
+$application->add($container->get(\App\Command\LoadCommand::class));
 
 $application->add($container->get(\App\Command\InitCommand::class));
 $application->add($container->get(\App\Command\UpdateCommand::class));

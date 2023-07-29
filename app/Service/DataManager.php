@@ -104,12 +104,18 @@ class DataManager
         return $stmt->fetchAll();
     }
 
-    public function totalItemProfits(): array
+    public function totalItemProfits(bool $onlyAvailableCraft = false): array
     {
-        $query = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where i.category <> :category and i.craftable = :craftable order by p.c_profit';
+        $query = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where i.category <> :category and i.craftable = :craftable';
+        if ($onlyAvailableCraft) {
+            $query .= ' and i.available_craft = :available_craft';
+        }
+        $query .= ' order by p.c_profit';
+
         $stmt = $this->_pdo->prepare($query);
         $stmt->bindValue(':category', CategoryID::Resources->value);
         $stmt->bindValue(':craftable', 1);
+        if ($onlyAvailableCraft) $stmt->bindValue(':available_craft', 1);
 
         $stmt->execute();
 

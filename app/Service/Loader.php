@@ -15,6 +15,12 @@ class Loader
         return $content;
     }
 
+    /**
+     * @deprecated todo: Убрать. Тут только загрузка файлов.
+     * @param string $path
+     * @return array
+     * @throws \Exception
+     */
     public function loadJson(string $path): array
     {
         $json = $this->load($path);

@@ -2,7 +2,9 @@
 
 namespace App\Command;
 
+use App\Service\Loader;
 use App\Service\ProjectPath;
+use App\Service\Serializer;
 use App\Types\CategoryID;
 use App\Types\FactionID;
 use Symfony\Component\Console\Command\Command;
@@ -12,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class LoadItemsToDatabaseCommand extends Command
 {
     protected static $defaultName = 'db.load_items';
+
     private array $_availableFaction = [
         FactionID::Engineers->value,
         FactionID::Lunatics->value,
@@ -31,12 +34,16 @@ class LoadItemsToDatabaseCommand extends Command
 
     private \PDO $_pdo;
     private ProjectPath $_path;
+    private Loader $_loader;
+    private Serializer $_serializer;
 
-    public function __construct(\PDO $pdo, ProjectPath $path)
+    public function __construct(\PDO $pdo, ProjectPath $path, Loader $loader, Serializer $serializer)
     {
+        parent::__construct(static::$defaultName);
         $this->_pdo = $pdo;
         $this->_path = $path;
-        parent::__construct(static::$defaultName);
+        $this->_loader = $loader;
+        $this->_serializer = $serializer;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -74,20 +81,23 @@ class LoadItemsToDatabaseCommand extends Command
         $json = fread($fp, filesize($filepath));
         fclose($fp);
 
-        $content = json_decode($json, JSON_UNESCAPED_UNICODE);
-        if ($content === null) throw new \Exception(sprintf('Ошибка при обработки json: %s.', json_last_error_msg()));
+        $content = $this->_serializer->decode($json, true);
+
+        $availableCraftItemsJson = $this->_loader->load($this->_path->build('data', 'available_craft_items.json'));
+        $availableCraftItems = $this->_serializer->decode($availableCraftItemsJson);
+
+        $query = 'insert into items (id, name, category, quality, faction, craftable, available_craft) values (:id, :name, :category, :quality, :faction, :craftable, :available_craft)';
+        $stmt = $this->_pdo->prepare($query);
 
         $count = 0;
         foreach ($content as $item) {
-            $query = 'insert into items (id, name, category, quality, faction, craftable) values (:id, :name, :category, :quality, :faction, :craftable)';
-            $stmt = $this->_pdo->prepare($query);
-
             $stmt->bindValue(':id', $item['id']);
             $stmt->bindValue(':name', $item['name']);
             $stmt->bindValue(':category', $item['categoryName']);
             $stmt->bindValue(':quality', $item['rarityName']);
             $stmt->bindValue(':faction', $item['faction']);
             $stmt->bindValue(':craftable', intval($item['craftVsBuy'] !== 'Uncraftable'));
+            $stmt->bindValue(':available_craft', intval(in_array($item['id'], $availableCraftItems)));
 
             $stmt->execute();
 

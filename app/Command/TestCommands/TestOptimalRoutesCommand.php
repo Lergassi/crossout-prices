@@ -3,7 +3,7 @@
 namespace App\Command\TestCommands;
 
 use App\Service\DataManager;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use App\Types\CategoryID;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,20 +16,20 @@ class TestOptimalRoutesCommand extends Command
 {
     protected static $defaultName = 'test.optimal_routes_fast';
     private DataManager $_dataManager;
-    private PriceController $_priceController;
+    private ProfitCalculator $_profitCalculator;
 
-    public function __construct(DataManager $dataManager, PriceController $priceController)
+    public function __construct(DataManager $dataManager, ProfitCalculator $priceController)
     {
         parent::__construct(static::$defaultName);
         $this->_dataManager = $dataManager;
-        $this->_priceController = $priceController;
+        $this->_profitCalculator = $priceController;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 //        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
 //        foreach ($items as $item) {
-//            $this->_priceController->calculateOptimalRoute($item['id']);
+//            $this->_profitCalculator->calculateOptimalRoute($item['id']);
 //        }
 
         return 0;

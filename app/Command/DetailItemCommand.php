@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Service\DataManager;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

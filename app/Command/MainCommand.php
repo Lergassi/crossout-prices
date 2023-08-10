@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use stringEncode\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

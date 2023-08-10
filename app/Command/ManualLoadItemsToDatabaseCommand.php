@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Service\DataManager;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use App\Types\CategoryID;
 use App\Types\QualityID;
 use Symfony\Component\Console\Command\Command;

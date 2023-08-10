@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ProfitsCommand extends Command
 {
     protected static $defaultName = 'profits';
+    protected static $defaultDescription = 'Выводит выгоду для предметов. По умолчанию только доступных для крафта.';
 
     private DataManager $_dataManager;
 
@@ -25,6 +26,8 @@ class ProfitsCommand extends Command
         $this->addOption(
             'all',
             'a',
+            null,
+            'Выводит все предметы, в том числе не доступные для крафта.',
         );
     }
 

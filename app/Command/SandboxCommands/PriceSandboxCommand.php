@@ -3,7 +3,7 @@
 namespace App\Command\SandboxCommands;
 
 use App\Service\DataManager;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,22 +11,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PriceSandboxCommand extends Command
 {
     protected static $defaultName = 'sandbox.prices';
-    private PriceController $_priceController;
+    private ProfitCalculator $_profitCalculator;
     private \PDO $_pdo;
     private DataManager $_dataManager;
 
-    public function __construct(PriceController $priceController, \PDO $pdo, DataManager $dataManager)
+    public function __construct(ProfitCalculator $priceController, \PDO $pdo, DataManager $dataManager)
     {
-        $this->_priceController = $priceController;
+        parent::__construct(static::$defaultName);
+        $this->_profitCalculator = $priceController;
         $this->_pdo = $pdo;
         $this->_dataManager = $dataManager;
-        parent::__construct(static::$defaultName);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_main();
+//        $this->_main();
 //        $this->_resourcesPricesQuery();
+        $this->_devWithAvailableCraftItems();
 
         return 0;
     }
@@ -97,7 +98,7 @@ class PriceSandboxCommand extends Command
         $ID = 497;
 //        $ID = 186;
 //        $ID = 163;
-        $this->_priceController->calculateOptimalRoute($ID);
+        $this->_profitCalculator->calculateOptimalRoute($ID);
 
         $IDs = [
             497,
@@ -118,7 +119,7 @@ class PriceSandboxCommand extends Command
             172,
         ];
 //        foreach ($IDs as $ID) {
-//            $this->_priceController->optimalRoute($ID);
+//            $this->_profitCalculator->optimalRoute($ID);
 //        }
     }
 
@@ -143,5 +144,11 @@ class PriceSandboxCommand extends Command
 //        dump($result);
 
         dump($this->_dataManager->findAllRequireItems());
+    }
+
+    private function _devWithAvailableCraftItems()
+    {
+        $this->_profitCalculator->calculateOptimalRoute(10000);
+        $this->_profitCalculator->detailItem(10000);
     }
 }

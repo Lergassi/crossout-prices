@@ -2,7 +2,7 @@
 
 namespace App\Command\TestCommands;
 
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,11 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class TestOptimalRouteCommand extends Command
 {
     protected static $defaultName = 'test.optimal_route';
-    private PriceController $_priceController;
+    private ProfitCalculator $_profitCalculator;
 
-    public function __construct(PriceController $priceController)
+    public function __construct(ProfitCalculator $priceController)
     {
-        $this->_priceController = $priceController;
+        $this->_profitCalculator = $priceController;
         parent::__construct(static::$defaultName);
     }
 
@@ -51,7 +51,7 @@ class TestOptimalRouteCommand extends Command
         $leftSideSeparator = str_repeat('-', $sideSeparatorLength);
         $rightSideSeparator = str_repeat('-', $sideSeparatorLength + $endBlockMessageLength % 2);
         foreach ($IDs as $ID) {
-            $this->_priceController->calculateOptimalRoute($ID);
+            $this->_profitCalculator->calculateOptimalRoute($ID);
             echo $leftSideSeparator . $endBlockMessage . $rightSideSeparator . PHP_EOL;
         }
 

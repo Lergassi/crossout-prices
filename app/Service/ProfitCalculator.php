@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Types\CategoryID;
 
-class PriceController
+class ProfitCalculator
 {
     private float $_fee = 0.1;
 
@@ -25,7 +25,7 @@ class PriceController
         //todo: Убрать в бд.
         $itemStacks = [
             43 => 100,  //copper
-            53 => 100,  //scrap
+            53 => 100,  //metal
             85 => 100,
             785 => 100,
             168 => 100,
@@ -48,6 +48,8 @@ class PriceController
                     $price = $this->_dataManager->findOnePrice($hierarchyResult[$i]['ri_item_id']);
                     $itemResourcePrices[$hierarchyResult[$i]['r_item_id']][$hierarchyResult[$i]['ri_item_id']] = round($hierarchyResult[$i]['ri_item_count'] / $itemStacks[$hierarchyResult[$i]['ri_item_id']] * $price['min_buy_price'], 2);
                 } else {
+                    if (!$hierarchyResult[$i]['available_craft']) continue;
+
                     $queue[] = [
                         'r_item_id' => $hierarchyResult[$i]['r_item_id'],
                         'ri_item_id' => $hierarchyResult[$i]['ri_item_id'],
@@ -98,15 +100,21 @@ class PriceController
                 'type' => 'craft',  //По умолчанию пока крафт, чтобы реализовать ресурсы. Позже стратегия может измениться. todo: Вообще значение должно быть null для удобного дебага (и все остальные), но для единой логики пусть будет 'craft'.
             ];
 
+            //todo: Получается нужно выбрать: рассчитывать с крафтом или без. И тут будет только одно решение. Другое решение нужно будет запускать отдельно.
             if (count($requireItems)) {
                 foreach ($requireItems as $requireItem) {
-                    $requireItemRecipe = $this->_dataManager->findOneRecipe($requireItem['ri_item_id']);
-                    $buySum = round($total[$requireItem['ri_item_id']]['buy'] * $requireItem['ri_item_count'], 2);
-                    $craftSum = round($total[$requireItem['ri_item_id']]['craft'] * $requireItem['ri_item_count'] / $requireItemRecipe['result_count'], 2);
-                    if ($craftSum >= $buySum) {
-                        $total[$reversQueue[$i]]['craft'] = round($total[$reversQueue[$i]]['craft'] + $buySum, 2);
+                    if (!$requireItem['i_available_craft']) {
+                        $_buySum = round($this->_dataManager->findOnePrice($requireItem['ri_item_id'])['min_buy_price'] * $requireItem['ri_item_count'], 2);    //todo: Метод.
+                        $total[$reversQueue[$i]]['craft'] = round($total[$reversQueue[$i]]['craft'] + $_buySum, 2);
                     } else {
-                        $total[$reversQueue[$i]]['craft'] = round($total[$reversQueue[$i]]['craft'] + $craftSum, 2);
+                        $requireItemRecipe = $this->_dataManager->findOneRecipe($requireItem['ri_item_id']);
+                        $buySum = round($total[$requireItem['ri_item_id']]['buy'] * $requireItem['ri_item_count'], 2);
+                        $craftSum = round($total[$requireItem['ri_item_id']]['craft'] * $requireItem['ri_item_count'] / $requireItemRecipe['result_count'], 2);
+                        if ($craftSum >= $buySum) {
+                            $total[$reversQueue[$i]]['craft'] = round($total[$reversQueue[$i]]['craft'] + $buySum, 2);
+                        } else {
+                            $total[$reversQueue[$i]]['craft'] = round($total[$reversQueue[$i]]['craft'] + $craftSum, 2);
+                        }
                     }
                 }//end foreach
             }//end if count(requireItems)
@@ -120,27 +128,6 @@ class PriceController
         $type = $total[$originalItemID]['type'];
         $totalSellPrice = round($itemPrice['max_sell_price'] * $itemRecipe['result_count'], 2);
         $profit = round($this->_priceWithoutFee($totalSellPrice) - $optimalCraftCost, 2);
-
-//        $separator = str_repeat('-', 64) . PHP_EOL;
-//        echo $separator;
-//        echo sprintf("| Item: %s", $originalItemID) . PHP_EOL;
-//        echo $separator;
-//        echo sprintf("| ID\t| craft\t| buy | type " . PHP_EOL);
-//        echo $separator;
-//        foreach ($total as $key => $item) {
-//            echo vsprintf("| %s\t| %s\t| %s | %s" . PHP_EOL, [
-//                $key,
-//                $item['craft'],
-//                $item['buy'],
-//                $item['type'],
-//            ]);
-//        }
-//        echo $separator;
-//        echo vsprintf('| Profit: %s (%s)' . PHP_EOL, [
-//            $profit,
-//            $totalSellPrice,
-//        ]);
-//        echo $separator;
 
         $this->_dataManager->updateOptimalCraft($originalItemID, $optimalCraftCost, $profit, $type, $date);
     }

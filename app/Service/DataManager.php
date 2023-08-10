@@ -162,7 +162,7 @@ class DataManager
 
     public function findRequireItemsWithoutResources(int $itemID): array
     {
-        $query = 'select i.name as i_name, ri.item_id as ri_item_id, ri.item_count as ri_item_count from require_items ri left join recipes r on r.id = ri.recipe_id left join items i on ri.item_id = i.id where r.item_id = :item_id and i.category <> :category';
+        $query = 'select i.name as i_name, i.available_craft as i_available_craft, ri.item_id as ri_item_id, ri.item_count as ri_item_count from require_items ri left join recipes r on r.id = ri.recipe_id left join items i on ri.item_id = i.id where r.item_id = :item_id and i.category <> :category';
         $stmt = $this->_pdo->prepare($query);
         $stmt->bindValue(':item_id', $itemID);
         $stmt->bindValue(':category', CategoryID::Resources->value);
@@ -219,6 +219,7 @@ class DataManager
                 ri1.item_id as ri_item_id,
                 ri1.item_count as ri_item_count,
                 i1.quality as i_quality,
+                i1.available_craft as i_available_craft,
                 0 as level,
                 0 as r_parent_item_id
             from recipes r1
@@ -236,6 +237,7 @@ class DataManager
                 ri2.item_id,
                 ri2.item_count,
                 i2.quality,
+                i2.available_craft as i_available_craft,
                 level + 1,
                 q.r_item_id
             from recipes r2
@@ -254,6 +256,7 @@ class DataManager
             ri_item_count,
             i.category as i_category,
             i_quality,
+            i.available_craft,
             level
         FROM query q
             left join items i on i.id = ri_item_id'

@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Service\DataManager;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use App\Types\CategoryID;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,14 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CalculateProfitCommand extends Command
 {
-    protected static $defaultName = 'db.calc_item';
+    protected static $defaultName = 'db.calc_profit';
 
-    private PriceController $_priceController;
+    private ProfitCalculator $_profitCalculator;
 
-    public function __construct(PriceController $priceController)
+    public function __construct(ProfitCalculator $priceController)
     {
         parent::__construct(static::$defaultName);
-        $this->_priceController = $priceController;
+        $this->_profitCalculator = $priceController;
     }
 
     protected function configure()
@@ -33,7 +33,7 @@ class CalculateProfitCommand extends Command
 
         echo 'Рассчет оптимальных цен для предмета запушен...' . PHP_EOL;
 
-        $this->_priceController->calculateOptimalRoute($ID, new \DateTime());
+        $this->_profitCalculator->calculateOptimalRoute($ID, new \DateTime());
 
         echo 'Рассчет оптимальных цен для предмета завершен.' . PHP_EOL;
 

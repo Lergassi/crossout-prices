@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Service\Downloader;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use App\Service\ProjectPath;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

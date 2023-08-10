@@ -7,7 +7,7 @@ use App\Command\TestCommands\TestInjectContainerCommand;
 
 use App\Command\TestCommands\TestNameInjectCommand;
 use App\Service\DataManager;
-use App\Service\PriceController;
+use App\Service\ProfitCalculator;
 use App\Test\Foo;
 use App\Types\CategoryID;
 use DI\Container;
@@ -27,14 +27,14 @@ class MainSandboxCommand extends Command
     private ContainerInterface $_container;
     private \PDO $_pdo;
     private DataManager $_dataManager;
-    private PriceController $_priceController;
+    private ProfitCalculator $_profitCalculator;
 
     public function __construct(ContainerInterface $container)
     {
         $this->_container = $container;
         $this->_pdo = $container->get(\PDO::class);
         $this->_dataManager = $container->get(DataManager::class);
-        $this->_priceController = $container->get(PriceController::class);
+        $this->_profitCalculator = $container->get(ProfitCalculator::class);
         parent::__construct(static::$defaultName);
     }
 
@@ -200,7 +200,7 @@ class MainSandboxCommand extends Command
 //        $items = $this->_dataManager->findItemsWithoutCategory(CategoryID::Resources->value);
 //
 //        foreach ($items as $item) {
-//            $this->_priceController->calculateOptimalRoute($item['id']);
+//            $this->_profitCalculator->calculateOptimalRoute($item['id']);
 //        }
     }
 
@@ -221,7 +221,7 @@ class MainSandboxCommand extends Command
     private function _devDetailItem()
     {
         $ID = 497;
-        $this->_priceController->detailItem($ID);
+        $this->_profitCalculator->detailItem($ID);
     }
 
     private function _devCliTableRender()

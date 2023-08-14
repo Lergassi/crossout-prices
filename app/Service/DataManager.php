@@ -106,21 +106,26 @@ class DataManager
 
     public function totalItemProfits(bool $onlyAvailableCraft = false, array $categories = null): array
     {
-        $queryPattern = 'select p.*, i.name, category, quality from prices p left join items i on i.id = p.item_id where %s and i.craftable = :craftable';
+        $query =
+            'select
+                p.*, 
+                i.name, category, quality
+            from prices p
+                left join items i on i.id = p.item_id
+            where i.craftable = :craftable'
+        ;
+
         if ($onlyAvailableCraft) {
-            $queryPattern .= ' and i.available_craft = :available_craft';
+            $query .= ' and i.available_craft = :available_craft';
         }
         if (count($categories)) {
             $categoriesPlaceholders = array_map(function ($key) {
                 return ':c_' . $key;
                 }, array_keys($categories));
-            $categoryCondition = sprintf('i.category in (%s)', implode(', ', $categoriesPlaceholders));
-        } else {
-            $categoryCondition = 'i.category <> :category';
+            $query .= sprintf(' and i.category in (%s)', implode(', ', $categoriesPlaceholders));
         }
 
-        $queryPattern .= ' order by p.c_profit';
-        $query = sprintf($queryPattern, $categoryCondition);
+        $query .= ' order by p.c_profit';
 
         $stmt = $this->_pdo->prepare($query);
         if (count($categories)) {

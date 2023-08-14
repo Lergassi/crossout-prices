@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\CliRender\CliTableRender;
 use App\Service\DataManager;
+use App\Types\CategoryID;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,15 +32,6 @@ class ProfitsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $allItems = $input->getOption('all');
-        $categoriesOption = $input->getOption('categories');    //todo: isSetOption?
-        if ($categoriesOption) {
-            $categories = explode(',', $categoriesOption);  //todo: А почему explode с пустой строкой массив возвращает c исходным значением?
-            $categories = array_filter($categories, function ($category) {
-                return $category ?: false;
-            });
-        } else {
-            $categories = [];
-        }
 
         $head = [
             'index',
@@ -54,6 +46,23 @@ class ProfitsCommand extends Command
             'type',
         ];
         $table = new CliTableRender(count($head), $head);
+
+        $defaultCategories = [
+            CategoryID::Cabins->value,
+            CategoryID::Weapons->value,
+            CategoryID::Hardware->value,
+            CategoryID::Movement->value,
+        ];
+
+        $categoriesOption = $input->getOption('categories');    //todo: isSetOption?
+        if ($categoriesOption) {
+            $categories = explode(',', $categoriesOption);  //todo: А почему explode с пустой строкой массив возвращает c исходным значением?
+            $categories = array_filter($categories, function ($category) {
+                return $category ?: false;
+            });
+        } else {
+            $categories = $defaultCategories;
+        }
 
         $prices = $this->_dataManager->totalItemProfits(!$allItems, $categories);
         foreach ($prices as $index => $price) {

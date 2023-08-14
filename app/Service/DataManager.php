@@ -106,7 +106,7 @@ class DataManager
 
     public function totalItemProfits(bool $onlyAvailableCraft = false, array $categories = null): array
     {
-        $queryPattern = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where %s and i.craftable = :craftable';
+        $queryPattern = 'select p.*, i.name, category, quality from prices p left join items i on i.id = p.item_id where %s and i.craftable = :craftable';
         if ($onlyAvailableCraft) {
             $queryPattern .= ' and i.available_craft = :available_craft';
         }

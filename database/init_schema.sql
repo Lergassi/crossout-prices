@@ -44,6 +44,7 @@ create table prices
     max_sell_price decimal(19, 2) unsigned not null,
     min_buy_price decimal(19, 2) unsigned not null,
     item_id int unsigned not null,
+    #todo: Префикс c_ можно спутать с алиасами столбцов (особенно с джоинами). Изменить.
     c_optimal_craft_cost float unsigned null,
     c_profit float null,
     c_type varchar(16) null,

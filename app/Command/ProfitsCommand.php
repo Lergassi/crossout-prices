@@ -41,25 +41,28 @@ class ProfitsCommand extends Command
             $categories = [];
         }
 
-        $table = new CliTableRender(9, [
+        $head = [
             'index',
             'id',
             'name',
             'category',
+            'quality',
             'optimal craft cost',
             'min buy price',
             'max sell price',
             'profit',
             'type',
-        ]);
+        ];
+        $table = new CliTableRender(count($head), $head);
 
         $prices = $this->_dataManager->totalItemProfits(!$allItems, $categories);
         foreach ($prices as $index => $price) {
             $table->add([
                 $index + 1,
                 $price['item_id'],
-                $price['i_name'],
-                $price['i_category'],
+                $price['name'],
+                $price['category'],
+                $price['quality'],
                 $price['c_optimal_craft_cost'],
                 $price['min_buy_price'],
                 $price['max_sell_price'],

@@ -2,6 +2,7 @@
 
 namespace App\CliRender;
 
+//todo: Переделать полность в формат конструктора.
 class CliTableRender
 {
     private array $items;
@@ -12,20 +13,20 @@ class CliTableRender
 
     private string $columnCountErrorMessagePattern = 'Кол-во столбцов должно быть равное %s.';
 
-    public function __construct(int $columnsCount, array $titleRow = [])
+    public function __construct(int $columnsCount, array $head = [])
     {
-        $titleRowCount = count($titleRow);
-        if ($titleRowCount && $titleRowCount !== $columnsCount) throw new \Exception(sprintf($this->columnCountErrorMessagePattern, $columnsCount));
+        $headCount = count($head);
+        if ($headCount && $headCount !== $columnsCount) throw new \Exception(sprintf($this->columnCountErrorMessagePattern, $columnsCount));
 
-        $this->titleRow = $titleRow;
+        $this->head = $head;
         $this->items = [];
         $this->maxColumnContentLength = [];
         $this->columns = $columnsCount;
         $this->columnSeparatorsLength = $columnsCount + 1;
         $this->tableLength = $this->columnSeparatorsLength;
 
-        if ($titleRowCount) {
-            $this->calculateMaxColumnsLength($this->titleRow);
+        if ($headCount) {
+            $this->calculateMaxColumnsLength($this->head);
         }
     }
 
@@ -46,11 +47,14 @@ class CliTableRender
             $result .= $this->renderRowSeparator();
         }
 
-        if (count($this->titleRow)) {
-            $rowTitle = $this->renderRow($this->titleRow);
-            $result = $rowTitle . $this->renderRowSeparator() . $result;
-            $result .= $rowTitle;
-            $result .= $this->renderRowSeparator();
+        if (count($this->head)) {
+            $headRender = $this->renderRow($this->head);
+            $result = $headRender
+                . $this->renderRowSeparator()
+                . $result
+                . $headRender
+                . $this->renderRowSeparator()
+            ;
         }
 
         $result = $this->renderRowSeparator() . $result;

@@ -104,7 +104,7 @@ class DataManager
         return $stmt->fetchAll();
     }
 
-    public function totalItemProfits(bool $onlyAvailableCraft = false, array $categories = null): array
+    public function totalItemProfits(bool $onlyAvailableCraft = false, array $categories = null, array $qualities = []): array
     {
         $query =
             'select
@@ -114,26 +114,36 @@ class DataManager
                 left join items i on i.id = p.item_id
             where i.craftable = :craftable'
         ;
+        $bindValues = [];
 
         if ($onlyAvailableCraft) {
             $query .= ' and i.available_craft = :available_craft';
         }
         if (count($categories)) {
-            $categoriesPlaceholders = array_map(function ($key) {
-                return ':c_' . $key;
+            $categoriesPrefix = ':c_';
+            $categoriesPlaceholders = array_map(function ($key) use ($categoriesPrefix) {
+                return $categoriesPrefix . $key;
                 }, array_keys($categories));
             $query .= sprintf(' and i.category in (%s)', implode(', ', $categoriesPlaceholders));
+            foreach ($categoriesPlaceholders as $key => $item) {
+                $bindValues[$item] = $categories[$key];
+            }
         }
-
+        if (count($qualities)) {
+            $qualitiesPrefix = ':q_';
+            $qualitiesPlaceholders = array_map(function ($key) use ($qualitiesPrefix) {
+                return $qualitiesPrefix . $key;
+            }, array_keys($qualities));
+            $query .= sprintf(' and i.quality in (%s)', implode(', ', $qualitiesPlaceholders));
+            foreach ($qualitiesPlaceholders as $key => $item) {
+                $bindValues[$item] = $qualities[$key];
+            }
+        }
         $query .= ' order by p.c_profit';
 
         $stmt = $this->_pdo->prepare($query);
-        if (count($categories)) {
-            foreach ($categories as $key => $category) {
-                $stmt->bindValue(':c_' . $key, $category);
-            }
-        } else {
-            $stmt->bindValue(':category', CategoryID::Resources->value);
+        foreach ($bindValues as $key => $bindValue) {
+            $stmt->bindValue($key, $bindValue);
         }
         $stmt->bindValue(':craftable', 1);
         if ($onlyAvailableCraft) $stmt->bindValue(':available_craft', 1);

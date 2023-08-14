@@ -5,6 +5,7 @@ namespace App\Command;
 use App\CliRender\CliTableRender;
 use App\Service\DataManager;
 use App\Types\CategoryID;
+use App\Types\QualityID;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,6 +28,7 @@ class ProfitsCommand extends Command
     {
         $this->addOption('all', 'a',null,'Выводит все предметы, в том числе не доступные для крафта.',);
         $this->addOption('categories', null, InputOption::VALUE_REQUIRED);
+        $this->addOption('qualities', null, InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -56,15 +58,24 @@ class ProfitsCommand extends Command
 
         $categoriesOption = $input->getOption('categories');    //todo: isSetOption?
         if ($categoriesOption) {
-            $categories = explode(',', $categoriesOption);  //todo: А почему explode с пустой строкой массив возвращает c исходным значением?
-            $categories = array_filter($categories, function ($category) {
-                return $category ?: false;
-            });
+            $categories = $this->parseValues($categoriesOption);
         } else {
             $categories = $defaultCategories;
         }
 
-        $prices = $this->_dataManager->totalItemProfits(!$allItems, $categories);
+        $defaultQualities = [
+//            QualityID::Special->value,
+            QualityID::Epic->value,
+        ];
+
+        $qualitiesOption = $input->getOption('qualities');
+        if ($qualitiesOption) {
+            $qualities = $this->parseValues($qualitiesOption);
+        } else {
+            $qualities = $defaultQualities;
+        }
+
+        $prices = $this->_dataManager->totalItemProfits(!$allItems, $categories, $qualities);
         foreach ($prices as $index => $price) {
             $table->add([
                 $index + 1,
@@ -83,5 +94,15 @@ class ProfitsCommand extends Command
         echo $table->render();
 
         return 0;
+    }
+
+    private function parseValues(string $target): array
+    {
+        $items = explode(',', $target);  //todo: А почему explode с пустой строкой массив возвращает c исходным значением?
+        $items = array_filter($items, function ($item) {
+            return $item ?: false;
+        });
+
+        return $items;
     }
 }

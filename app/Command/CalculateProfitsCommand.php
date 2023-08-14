@@ -25,6 +25,7 @@ class CalculateProfitsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+//        $start = microtime(true);
         echo 'Рассчет оптимальных цен запушен...' . PHP_EOL;
 
         $date = new \DateTime();
@@ -34,6 +35,8 @@ class CalculateProfitsCommand extends Command
         }
 
         echo 'Рассчет оптимальных цен завершен.' . PHP_EOL;
+//        $end = microtime(true);
+//        dump(round($end - $start, 3));
 
         return 0;
     }

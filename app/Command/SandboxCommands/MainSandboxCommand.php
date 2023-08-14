@@ -3,19 +3,13 @@
 namespace App\Command\SandboxCommands;
 
 use App\CliRender\CliTableRender;
-use App\Command\TestCommands\TestInjectContainerCommand;
-
 use App\Command\TestCommands\TestNameInjectCommand;
 use App\Service\DataManager;
 use App\Service\ProfitCalculator;
-use App\Test\Foo;
-use App\Types\CategoryID;
-use DI\Container;
+use App\Test\TestInterfaceDefinition\TestInterfaceDefinition;
 use DI\ContainerBuilder;
-use JetBrains\PhpStorm\NoReturn;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -50,7 +44,8 @@ class MainSandboxCommand extends Command
 //        $this->_allOptimalRoutes();
 //        $this->_devMysqlFetchFloat();
 //        $this->_devDetailItem();
-        $this->_devCliTableRender();
+//        $this->_devCliTableRender();
+        $this->testInterfaceDefinition();
 
         return 0;
     }
@@ -241,5 +236,10 @@ class MainSandboxCommand extends Command
         }
 
         echo $table->render();
+    }
+
+    private function testInterfaceDefinition()
+    {
+        $this->_container->get(TestInterfaceDefinition::class);
     }
 }

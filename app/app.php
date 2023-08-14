@@ -29,12 +29,18 @@ use App\Command\TestCommands\TestVarDumperCommand;
 use App\Command\UpdateCommand;
 use App\Command\UpdatePricesInDatabaseCommand;
 use App\Command\WipeCommand;
+use App\Interface\LoadPricesStrategyInterface;
+use App\Service\Downloader;
 use App\Service\Dump\InitCustomDumper;
 use App\Service\ProjectPath;
+use App\Strategy\LoadItemsStrategy;
+use App\Strategy\LoadExportPricesStrategy;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
+use function DI\autowire;
+use function DI\factory;
 
 //--------------------------------
 // init app
@@ -50,6 +56,7 @@ new InitCustomDumper();
 $containerBuilder = new ContainerBuilder();
 
 $containerBuilder->addDefinitions([
+    'foo' => 'bar',
     PDO::class => function (ContainerInterface $container) {
         return new PDO(
             sprintf('mysql:host=%s;dbname=%s', $_ENV['APP_DB_HOST'] ?? '', $_ENV['APP_DB_NAME'] ?? ''),
@@ -64,6 +71,36 @@ $containerBuilder->addDefinitions([
     ProjectPath::class => function (ContainerInterface $container) {
         return new ProjectPath($_ENV['APP_PROJECT_ROOT'] ?? '');
     },
+
+//    LoadPricesStrategyInterface::class => autowire(LoadExportPricesStrategy::class),
+    LoadPricesStrategyInterface::class => autowire(LoadItemsStrategy::class),
+    //todo: Найти решение передать данные через DI\get()->method().
+    DownloadPricesCommand::class => factory(function (ProjectPath $projectPath, Downloader $downloader) {
+        $data = [
+            'export' => [
+                'url' => 'https://crossoutdb.com/export?showtable=true&sellprice=true&buyprice=true&id=true&removedItems=true',
+                'path' => $projectPath->build('data/prices.html'),
+            ],
+            'api' => [
+                'url' => 'https://crossoutdb.com/api/v1/items',
+                'path' => $projectPath->build('data/crossoutdb/items.json'),
+            ],
+        ];
+
+        $target = $data['api'];
+
+        return new DownloadPricesCommand(
+                $target['url'],
+                $target['path'],
+                $downloader,
+        );
+    }),
+
+//tests:
+//    \App\Interface\LoadPricesStrategyInterface::class => \DI\create()->constructor(\DI\get(\App\Strategy\LoadItemsStrategy::class)),
+//    \App\Test\TestInterfaceDefinition\TestInterface::class => \DI\create(\App\Test\TestInterfaceDefinition\One::class),
+//    \App\Test\TestInterfaceDefinition\TestInterface::class => \DI\create(\App\Test\TestInterfaceDefinition\Two::class),
+//    \App\Test\TestInterfaceDefinition\TestInterface::class => \DI\autowire(\App\Test\TestInterfaceDefinition\Two::class),
 ]);
 
 $container = $containerBuilder->build();

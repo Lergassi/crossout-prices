@@ -2,12 +2,12 @@
 
 namespace App\Command;
 
+use App\Interface\LoadPricesStrategyInterface;
 use App\Service\DataManager;
 use App\Service\Loader;
-use App\Service\ProfitCalculator;
 use App\Service\ProjectPath;
 use App\Service\Serializer;
-use PHPHtmlParser\Dom;
+use PDO;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,17 +15,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UpdatePricesInDatabaseCommand extends Command
 {
     protected static $defaultName = 'db.update_prices';
-    protected static $defaultDescription = 'Обновляет цены из уже загруженного prices.html.';
+    protected static $defaultDescription = 'Обновляет цены из уже загруженных данных.';
 
+    private LoadPricesStrategyInterface $loadPricesStrategy;
     private ProjectPath $_projectPath;
     private Loader $_loader;
-    private \PDO $_pdo;
+    private PDO $_pdo;
     private DataManager $_dataManager;
     private Serializer $_serializer;
 
-    public function __construct(ProjectPath $projectPath, Loader $loader, \PDO $pdo, DataManager $dataManager, \App\Service\Serializer $serializer)
+    public function __construct(
+        LoadPricesStrategyInterface $loadPricesStrategy,
+        ProjectPath                 $projectPath,
+        Loader                      $loader,
+        PDO                         $pdo,
+        DataManager                 $dataManager,
+        Serializer                  $serializer,
+    )
     {
         parent::__construct(static::$defaultName);
+        $this->loadPricesStrategy = $loadPricesStrategy;
         $this->_projectPath = $projectPath;
         $this->_loader = $loader;
         $this->_pdo = $pdo;
@@ -37,13 +46,7 @@ class UpdatePricesInDatabaseCommand extends Command
     {
         echo 'Начало загрузки цен в бд...' . PHP_EOL;
 
-        $filename = 'prices.html';
-        $path = $this->_projectPath->build('data', $filename);
-        $html = $this->_loader->load($path);
-
-        echo sprintf('Начало обработки %s...' . PHP_EOL, $filename);
-        $prices = $this->_parseHtmlPrices($html);
-        echo sprintf('Обработка %s завершена.' . PHP_EOL, $filename);
+        $prices = $this->loadPricesStrategy->load();
 
         $manualPrices = $this->_serializer->decode($this->_loader->load($this->_projectPath->build('data/prices.json')), true);
         $prices = array_merge($prices, $manualPrices);
@@ -58,7 +61,7 @@ class UpdatePricesInDatabaseCommand extends Command
 
         $this->_pdo->beginTransaction();
         foreach ($prices as $price) {
-            //todo: Сделать наоборот: получить предметы и искать цену в файле.
+            //todo: Сделать наоборот: получить предметы зи бд и искать цену в файле.
             if (!$this->_dataManager->hasItem($price['id'])) continue;
 
             $selectPriceStmt->bindValue(':item_id', $price['id']);
@@ -66,13 +69,13 @@ class UpdatePricesInDatabaseCommand extends Command
             $existsPrice = $selectPriceStmt->fetch();
 
             if (!$existsPrice) {
-                $insertPriceStmt->bindValue(':max_sell_price', $price['max_sell_price']);
-                $insertPriceStmt->bindValue(':min_buy_price', $price['min_buy_price']);
+                $insertPriceStmt->bindValue(':max_sell_price', $price['formatSellPrice']);
+                $insertPriceStmt->bindValue(':min_buy_price', $price['formatBuyPrice']);
                 $insertPriceStmt->bindValue(':item_id', $price['id']);
                 $insertPriceStmt->execute();
             } else {
-                $updatePriceStmt->bindValue(':max_sell_price', $price['max_sell_price']);
-                $updatePriceStmt->bindValue(':min_buy_price', $price['min_buy_price']);
+                $updatePriceStmt->bindValue(':max_sell_price', $price['formatSellPrice']);
+                $updatePriceStmt->bindValue(':min_buy_price', $price['formatBuyPrice']);
                 $updatePriceStmt->bindValue(':item_id', $price['id']);
                 $updatePriceStmt->execute();
             }
@@ -82,24 +85,5 @@ class UpdatePricesInDatabaseCommand extends Command
         echo 'Цена загружены в бд.' . PHP_EOL;
 
         return 0;
-    }
-
-    private function _parseHtmlPrices(string $html): array
-    {
-        $dom = new Dom();
-        $dom->loadStr($html);
-        $elements = $dom->find('#ItemTable tbody tr');
-        $prices = [];
-        foreach ($elements as $element) {
-            $tdCollection = $element->find('td');
-            $id = intval($tdCollection[2]->text);
-            $prices[] = [
-                'id' => $id,
-                'max_sell_price' => floatval($tdCollection[0]->text),
-                'min_buy_price' => floatval($tdCollection[1]->text),
-            ];
-        }
-
-        return $prices;
     }
 }

@@ -6,6 +6,7 @@ use App\CliRender\CliTableRender;
 use App\Service\DataManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ProfitsCommand extends Command
@@ -23,17 +24,22 @@ class ProfitsCommand extends Command
 
     protected function configure()
     {
-        $this->addOption(
-            'all',
-            'a',
-            null,
-            'Выводит все предметы, в том числе не доступные для крафта.',
-        );
+        $this->addOption('all', 'a',null,'Выводит все предметы, в том числе не доступные для крафта.',);
+        $this->addOption('categories', null, InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $allItems = $input->getOption('all');
+        $categoriesOption = $input->getOption('categories');    //todo: isSetOption?
+        if ($categoriesOption) {
+            $categories = explode(',', $categoriesOption);  //todo: А почему explode с пустой строкой массив возвращает c исходным значением?
+            $categories = array_filter($categories, function ($category) {
+                return $category ?: false;
+            });
+        } else {
+            $categories = [];
+        }
 
         $table = new CliTableRender(9, [
             'index',
@@ -47,7 +53,7 @@ class ProfitsCommand extends Command
             'type',
         ]);
 
-        $prices = $this->_dataManager->totalItemProfits(!$allItems);
+        $prices = $this->_dataManager->totalItemProfits(!$allItems, $categories);
         foreach ($prices as $index => $price) {
             $table->add([
                 $index + 1,

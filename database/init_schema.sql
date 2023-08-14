@@ -7,6 +7,7 @@ create table if not exists items
     quality varchar(32) not null,
     faction varchar(32) null,
     available_craft bool not null,
+    is_feature bool not null,
     primary key (id)
 );
 

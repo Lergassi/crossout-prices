@@ -12,3 +12,7 @@ alter table items
 alter table items
     add available_craft bool not null
 ;
+
+alter table items
+    add is_feature bool not null
+;

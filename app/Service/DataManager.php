@@ -104,16 +104,32 @@ class DataManager
         return $stmt->fetchAll();
     }
 
-    public function totalItemProfits(bool $onlyAvailableCraft = false): array
+    public function totalItemProfits(bool $onlyAvailableCraft = false, array $categories = null): array
     {
-        $query = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where i.category <> :category and i.craftable = :craftable';
+        $queryPattern = 'select p.*, i.name as i_name, i.category as i_category from prices p left join items i on i.id = p.item_id where %s and i.craftable = :craftable';
         if ($onlyAvailableCraft) {
-            $query .= ' and i.available_craft = :available_craft';
+            $queryPattern .= ' and i.available_craft = :available_craft';
         }
-        $query .= ' order by p.c_profit';
+        if (count($categories)) {
+            $categoriesPlaceholders = array_map(function ($key) {
+                return ':c_' . $key;
+                }, array_keys($categories));
+            $categoryCondition = sprintf('i.category in (%s)', implode(', ', $categoriesPlaceholders));
+        } else {
+            $categoryCondition = 'i.category <> :category';
+        }
+
+        $queryPattern .= ' order by p.c_profit';
+        $query = sprintf($queryPattern, $categoryCondition);
 
         $stmt = $this->_pdo->prepare($query);
-        $stmt->bindValue(':category', CategoryID::Resources->value);
+        if (count($categories)) {
+            foreach ($categories as $key => $category) {
+                $stmt->bindValue(':c_' . $key, $category);
+            }
+        } else {
+            $stmt->bindValue(':category', CategoryID::Resources->value);
+        }
         $stmt->bindValue(':craftable', 1);
         if ($onlyAvailableCraft) $stmt->bindValue(':available_craft', 1);
 
